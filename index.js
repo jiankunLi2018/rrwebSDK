@@ -362,6 +362,7 @@ var rrwebSDK = (function(factory) {
 
         this.start = function(data) {
             trace('start ...');
+            _shieldvconsole();
             if (!status.stop) {
                 trace('start ... error (已在录制中，若要开始一个新的录制，请先使用 stop() 停止旧的录制)');
                 return;
@@ -450,7 +451,7 @@ var rrwebSDK = (function(factory) {
         }
 
         this.version = function() {
-            var v = '1.2.4 bate';
+            var v = '1.3.0';
             trace('version ' + v);
             return v;
         }
@@ -473,7 +474,7 @@ var rrwebSDK = (function(factory) {
         }
         window.__rrwebsdk_config = config;
         cache = _cache();
-        _shieldvconsole();
+        //_shieldvconsole();
         trace('instantiate ... ok');
 
     };

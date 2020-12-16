@@ -1921,6 +1921,7 @@ var rrweb = (function (exports) {
                     if (!node) {
                         for (var index = addList.length - 1; index >= 0; index--) {
                             var _node = addList.get(index);
+                            if(!_node) break;
                             var parentId = mirror.getId(_node.value.parentNode);
                             var nextId = getNextId(_node.value);
                             if (parentId !== -1 && nextId !== -1) {

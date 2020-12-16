@@ -1,4 +1,4 @@
-import rrweb from 'rrweb.js'
+import rrweb from './rrweb'
 
 /* eslint-disable */
 

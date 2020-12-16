@@ -1,6 +1,6 @@
 
   {
-    "name": "rrwebSDK", 
+    "name": "rrweb-sdk", 
     "description": "", 
     "version": "1.2.4",
     "main": "index.js",
@@ -9,7 +9,7 @@
     },
     "repository": {
       "type": "git",
-      "url": "" 
+      "url": "git@github.com:jiankunLi2018/rrwebSDK.git" 
     },
     "keywords": [],   
     "author": "",  

@@ -4657,3 +4657,5 @@ var rrweb = (function (exports) {
     return exports;
 
 }({}));
+
+export default rrweb;

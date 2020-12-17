@@ -296,7 +296,7 @@ var rrwebSDK = (function(factory) {
                         _debug('rr ... +1 ' + JSON.stringify(event));
                         status.events.push(event);
                     }
-                },
+                }
             });
             status.timer = setInterval(_report, config.reportTimes * 1000);
             _report();
@@ -474,7 +474,7 @@ var rrwebSDK = (function(factory) {
         }
         window.__rrwebsdk_config = config;
         cache = _cache();
-        //_shieldvconsole();
+        _shieldvconsole();
         trace('instantiate ... ok');
 
     };

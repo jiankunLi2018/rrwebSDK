@@ -1917,11 +1917,12 @@ var rrweb = (function (exports) {
                         if (parentId !== -1 && nextId !== -1) {
                             node = candidate;
                         }
+                        candidate = node.previous;
                     }
                     if (!node) {
                         for (var index = addList.length - 1; index >= 0; index--) {
                             var _node = addList.get(index);
-                            if(!_node) break;
+                            if(!_node) continue;
                             var parentId = mirror.getId(_node.value.parentNode);
                             var nextId = getNextId(_node.value);
                             if (parentId !== -1 && nextId !== -1) {
@@ -1933,6 +1934,7 @@ var rrweb = (function (exports) {
                     if (!node) {
                         break;
                     }
+                    
                     candidate = node.previous;
                     addList.removeNode(node.value);
                     pushAdd(node.value);

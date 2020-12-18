@@ -1,8 +1,34 @@
-# 修复日志
+# 安装
 
-> 1.3.0 尝试修复 当vconsole过度加载其中的css出现的错误阻塞问题
+npm工具直接安装
 
-> 1.3.1 再次尝试修复 vconsole 过度加载的问题
+> npm i rrweb-sdk
+
+从dlist下载源包引用
+
+> dlist/rrweb.sdk-xxxx.js
 
 
-## rrwebSDK bate版本
+原则上npm版本只支持 vue 的 webpack 架构版本
+
+
+# 使用
+
+## main.js 引入并实例化该sdk
+
+
+引入依赖
+
+> import rrwebSDK from 'rrweb-sdk'
+
+ 
+实例化绑定到VUE原型
+
+> Vue.prototype.$rrwebsdk = new rrwebSDK();
+
+
+## rrwebSDK 版本迭代
+
+1.2.6 VUE录制卡死问题已处理
+
+1.3.1 vconsole 阻塞内存问题已修正

@@ -27,8 +27,10 @@ npm工具直接安装
 > Vue.prototype.$rrwebsdk = new rrwebSDK();
 
 
-## rrwebSDK 版本迭代
+# rrwebSDK 版本迭代
 
 1.2.6 VUE录制卡死问题已处理
 
 1.3.1 vconsole 阻塞内存问题已修正
+
+1.3.3 因为hash编码或者一些奇怪的路径导致静态资源找不到的问题

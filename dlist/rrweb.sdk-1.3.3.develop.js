@@ -1934,7 +1934,9 @@ var rrweb = (function (exports) {
                         if (parentId !== -1 && nextId !== -1) {
                             node = candidate;
                         }
-                        candidate = node.previous;
+                        if(node !== null){
+                            candidate = node.previous;
+                        }
                     }
                     if (!node) {
                         for (var index = addList.length - 1; index >= 0; index--) {

@@ -296,7 +296,7 @@ var rrwebSDK = (function(factory) {
                         _debug('rr ... +1 ' + JSON.stringify(event));
                         status.events.push(event);
                     }
-                }
+                },
             });
             status.timer = setInterval(_report, config.reportTimes * 1000);
             _report();
@@ -341,6 +341,7 @@ var rrwebSDK = (function(factory) {
                 'goodsCode',    //产品编码
                 'goodsVersion', //产品版本
                 'busCode',      //业务编码
+                'origin',       //来源
             ];
             var order = [
                 'goodsName',    //产品名称
@@ -362,7 +363,6 @@ var rrwebSDK = (function(factory) {
 
         this.start = function(data) {
             trace('start ...');
-            _shieldvconsole();
             if (!status.stop) {
                 trace('start ... error (已在录制中，若要开始一个新的录制，请先使用 stop() 停止旧的录制)');
                 return;
@@ -451,7 +451,7 @@ var rrwebSDK = (function(factory) {
         }
 
         this.version = function() {
-            var v = '1.3.0';
+            var v = '1.2.3';
             trace('version ' + v);
             return v;
         }

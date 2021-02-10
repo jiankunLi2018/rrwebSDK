@@ -1,3 +1,178 @@
+/* eslint-disable */
+
+/* rrwebsdk-modules : IE Polyfill  */
+(function(){
+    //if (!window.ActiveXObject) return;
+    if (typeof Object.assign != 'function') {
+        // Must be writable: true, enumerable: false, configurable: true
+        Object.defineProperty(Object, "assign", {
+            value: function assign(target, varArgs) { // .length of function is 2
+            'use strict';
+            if (target == null) { // TypeError if undefined or null
+                throw new TypeError('Cannot convert undefined or null to object');
+            }
+            let to = Object(target);
+            for (var index = 1; index < arguments.length; index++) {
+                var nextSource = arguments[index];
+
+                if (nextSource != null) { // Skip over if undefined or null
+                for (let nextKey in nextSource) {
+                    // Avoid bugs when hasOwnProperty is shadowed
+                    if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                    to[nextKey] = nextSource[nextKey];
+                    }
+                }
+                }
+            }
+            return to;
+            },
+            writable: true,
+            configurable: true
+        });
+    }
+    if (!Array.from) {
+        Array.from = (function () {
+            var toStr = Object.prototype.toString;
+            var isCallable = function (fn) {
+            return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
+            };
+            var toInteger = function (value) {
+            var number = Number(value);
+            if (isNaN(number)) { return 0; }
+            if (number === 0 || !isFinite(number)) { return number; }
+            return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
+            };
+            var maxSafeInteger = Math.pow(2, 53) - 1;
+            var toLength = function (value) {
+            var len = toInteger(value);
+            return Math.min(Math.max(len, 0), maxSafeInteger);
+            };
+
+            // The length property of the from method is 1.
+            return function from(arrayLike/*, mapFn, thisArg */) {
+                // 1. Let C be the this value.
+                var C = this;
+
+                // 2. Let items be ToObject(arrayLike).
+                var items = Object(arrayLike);
+
+                // 3. ReturnIfAbrupt(items).
+                if (arrayLike == null) {
+                    throw new TypeError("Array.from requires an array-like object - not null or undefined");
+                }
+
+                // 4. If mapfn is undefined, then let mapping be false.
+                var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
+                var T;
+                if (typeof mapFn !== 'undefined') {
+                    // 5. else
+                    // 5. a If IsCallable(mapfn) is false, throw a TypeError exception.
+                    if (!isCallable(mapFn)) {
+                    throw new TypeError('Array.from: when provided, the second argument must be a function');
+                    }
+
+                    // 5. b. If thisArg was supplied, let T be thisArg; else let T be undefined.
+                    if (arguments.length > 2) {
+                    T = arguments[2];
+                    }
+                }
+
+                // 10. Let lenValue be Get(items, "length").
+                // 11. Let len be ToLength(lenValue).
+                var len = toLength(items.length);
+
+                // 13. If IsConstructor(C) is true, then
+                // 13. a. Let A be the result of calling the [[Construct]] internal method 
+                // of C with an argument list containing the single item len.
+                // 14. a. Else, Let A be ArrayCreate(len).
+                var A = isCallable(C) ? Object(new C(len)) : new Array(len);
+
+                // 16. Let k be 0.
+                var k = 0;
+                // 17. Repeat, while k < len… (also steps a - h)
+                var kValue;
+                while (k < len) {
+                    kValue = items[k];
+                    if (mapFn) {
+                    A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
+                    } else {
+                    A[k] = kValue;
+                    }
+                    k += 1;
+                }
+                // 18. Let putStatus be Put(A, "length", len, true).
+                A.length = len;
+                // 20. Return A.
+                return A;
+            };
+        }());
+    }
+    if (!Array.prototype.find) {
+        Object.defineProperty(Array.prototype, 'find', {
+            value: function(predicate) {
+            // 1. Let O be ? ToObject(this value).
+            if (this == null) {
+                throw new TypeError('"this" is null or not defined');
+            }
+
+            var o = Object(this);
+
+            // 2. Let len be ? ToLength(? Get(O, "length")).
+            var len = o.length >>> 0;
+
+            // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+            if (typeof predicate !== 'function') {
+                throw new TypeError('predicate must be a function');
+            }
+
+            // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+            var thisArg = arguments[1];
+
+            // 5. Let k be 0.
+            var k = 0;
+
+            // 6. Repeat, while k < len
+            while (k < len) {
+                // a. Let Pk be ! ToString(k).
+                // b. Let kValue be ? Get(O, Pk).
+                // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+                // d. If testResult is true, return kValue.
+                var kValue = o[k];
+                if (predicate.call(thisArg, kValue, k, o)) {
+                return kValue;
+                }
+                // e. Increase k by 1.
+                k++;
+            }
+
+            // 7. Return undefined.
+            return undefined;
+            }
+        });
+    }
+    Number.isNaN = Number.isNaN || function(value) {
+        return typeof value === "number" && isNaN(value);
+    }
+    if (!String.prototype.endsWith) {
+        String.prototype.endsWith = function(search, this_len) {
+            if (this_len === undefined || this_len > this.length) {
+                this_len = this.length;
+            }
+            return this.substring(this_len - search.length, this_len) === search;
+        };
+    }
+})();
+
+/* rrwebsdk-modules : IOS-Wechat Polyfill  */
+(function(){
+    var pt; var f = e => typeof window.onshow == 'function' && window.onshow();
+    if (/iPhone|iPod|iPad/i.test(navigator.userAgent)){ window.setInterval(e=>{ var nt=Math.floor(new Date().getTime()/1000);
+    if (typeof pt == 'number' && nt - pt > 1) f(); pt = nt; }, 1000); }
+    if (document.readyState==="complete" || (document.readyState !== "loading" && !document.documentElement.doScroll) ) f();
+    else document.addEventListener("DOMContentLoaded", f);
+})();
+
+/* rrwebsdk-modules : core  */
 var rrweb = (function (exports) {
     'use strict';
 
@@ -30,6 +205,8 @@ var rrweb = (function (exports) {
     function __values(o) {
         var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
         if (m) return m.call(o);
+        if (o && o.constructor == Set) o = Array.from(o);
+        if (o && o.constructor == Object) o = Array.from(o);
         if (o && typeof o.length === "number") return {
             next: function () {
                 if (o && i >= o.length) o = void 0;
@@ -73,14 +250,13 @@ var rrweb = (function (exports) {
     })(NodeType || (NodeType = {}));
 
     var _id = 1;
-    var tagNameRegex = RegExp('[^a-z1-6-_]');
-    var IGNORED_NODE = -2;
+    var symbolAndNumberRegex = RegExp('[^a-z1-6-]');
     function genId() {
         return _id++;
     }
     function getValidTagName(tagName) {
         var processedTagName = tagName.toLowerCase().trim();
-        if (tagNameRegex.test(processedTagName)) {
+        if (symbolAndNumberRegex.test(processedTagName)) {
             return 'div';
         }
         return processedTagName;
@@ -88,7 +264,9 @@ var rrweb = (function (exports) {
     function getCssRulesString(s) {
         try {
             var rules = s.rules || s.cssRules;
-            return rules ? Array.from(rules).map(getCssRuleString).join('') : null;
+            return rules
+                ? Array.from(rules).reduce(function (prev, cur) { return prev + getCssRuleString(cur); }, '')
+                : null;
         }
         catch (error) {
             return null;
@@ -113,38 +291,26 @@ var rrweb = (function (exports) {
         origin = origin.split('?')[0];
         return origin;
     }
-    var URL_IN_CSS_REF = /url\((?:(')([^']*)'|(")([^"]*)"|([^)]*))\)/gm;
+    var URL_IN_CSS_REF = /url\((?:'([^']*)'|"([^"]*)"|([^)]*))\)/gm;
     var RELATIVE_PATH = /^(?!www\.|(?:http|ftp)s?:\/\/|[A-Za-z]:\\|\/\/).*/;
-    var DATA_URI = /^(data:)([^,]*),(.*)/i;
+    var DATA_URI = /^(data:)([\w\/\+\-]+);(charset=[\w-]+|base64).*,(.*)/i;
     function absoluteToStylesheet(cssText, href) {
-        return (cssText || '').replace(URL_IN_CSS_REF, function (origin, quote1, path1, quote2, path2, path3) {
+        return (cssText || '').replace(URL_IN_CSS_REF, function (origin, path1, path2, path3) {
             var filePath = path1 || path2 || path3;
-            var maybeQuote = quote1 || quote2 || '';
-            var stackHref = href;
-            
-            if (href.indexOf('?') > 0){
-                stackHref = href.split('?')[0]
-            }
-
             if (!filePath) {
                 return origin;
             }
             if (!RELATIVE_PATH.test(filePath)) {
-                return "url(" + maybeQuote + filePath + maybeQuote + ")";
+                return "url('" + filePath + "')";
             }
             if (DATA_URI.test(filePath)) {
-                return "url(" + maybeQuote + filePath + maybeQuote + ")";
+                return "url(" + filePath + ")";
             }
             if (filePath[0] === '/') {
-                return "url(" + maybeQuote + (extractOrigin(stackHref) + filePath) + maybeQuote + ")";
+                return "url('" + (extractOrigin(href) + filePath) + "')";
             }
-            var specalURL = '#';
-            var stack = stackHref.split('/');
+            var stack = href.substring(0, (href+'?').indexOf('?')).split('/');
             var parts = filePath.split('/');
-            
-            if(stack.indexOf(specalURL) > -1 ) {
-                stack.splice(stack.indexOf(specalURL),1);
-            }
             stack.pop();
             for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
                 var part = parts_1[_i];
@@ -158,7 +324,7 @@ var rrweb = (function (exports) {
                     stack.push(part);
                 }
             }
-            return "url(" + maybeQuote + stack.join('/') + maybeQuote + ")";
+            return "url('" + stack.join('/') + "')";
         });
     }
     function getAbsoluteSrcsetString(doc, attributeValue) {
@@ -180,7 +346,7 @@ var rrweb = (function (exports) {
             }
             return '';
         })
-            .join(', ');
+            .join(',');
         return resultingSrcsetString;
     }
     function absoluteToDoc(doc, attributeValue) {
@@ -195,7 +361,6 @@ var rrweb = (function (exports) {
         return el.tagName === 'svg' || el instanceof SVGElement;
     }
     function transformAttribute(doc, name, value) {
-        
         if (name === 'src' || (name === 'href' && value)) {
             return absoluteToDoc(doc, value);
         }
@@ -209,57 +374,50 @@ var rrweb = (function (exports) {
             return value;
         }
     }
-    function _isBlockedElement(element, blockClass, blockSelector) {
-        if (typeof blockClass === 'string') {
-            if (element.classList.contains(blockClass)) {
-                return true;
-            }
-        }
-        else {
-            element.classList.forEach(function (className) {
-                if (blockClass.test(className)) {
-                    return true;
-                }
-            });
-        }
-        if (blockSelector) {
-            return element.matches(blockSelector);
-        }
-        return false;
-    }
-    function serializeNode(n, options) {
-        
-        var doc = options.doc, blockClass = options.blockClass, blockSelector = options.blockSelector, inlineStylesheet = options.inlineStylesheet, _a = options.maskInputOptions, maskInputOptions = _a === void 0 ? {} : _a, recordCanvas = options.recordCanvas;
+    function serializeNode(n, doc, blockClass, inlineStylesheet, maskInputOptions) {
+        if (maskInputOptions === void 0) { maskInputOptions = {}; }
         switch (n.nodeType) {
             case n.DOCUMENT_NODE:
                 return {
                     type: NodeType.Document,
-                    childNodes: [],
+                    childNodes: []
                 };
             case n.DOCUMENT_TYPE_NODE:
                 return {
                     type: NodeType.DocumentType,
                     name: n.name,
                     publicId: n.publicId,
-                    systemId: n.systemId,
+                    systemId: n.systemId
                 };
             case n.ELEMENT_NODE:
-                var needBlock = _isBlockedElement(n, blockClass, blockSelector);
+                var needBlock_1 = false;
+                if (typeof blockClass === 'string') {
+                    needBlock_1 = n.classList.contains(blockClass);
+                }
+                else {
+                    n.classList.forEach(function (className) {
+                        if (blockClass.test(className)) {
+                            needBlock_1 = true;
+                        }
+                    });
+                }
                 var tagName = getValidTagName(n.tagName);
                 var attributes_1 = {};
-                for (var _i = 0, _b = Array.from(n.attributes); _i < _b.length; _i++) {
-                    var _c = _b[_i], name = _c.name, value = _c.value;
+                for (var _i = 0, _a = Array.from(n.attributes); _i < _a.length; _i++) {
+                    var _b = _a[_i], name = _b.name, value = _b.value;
                     attributes_1[name] = transformAttribute(doc, name, value);
                 }
                 if (tagName === 'link' && inlineStylesheet) {
-                    var stylesheet = Array.from(doc.styleSheets).find(function (s) {
-                        return s.href === n.href;
-                    });
-                    var cssText = getCssRulesString(stylesheet);
-                    if (cssText) {
-                        delete attributes_1.rel;
-                        delete attributes_1.href;
-                        attributes_1._cssText = absoluteToStylesheet(cssText, stylesheet.href);
+                    if (window.__rrwebsdk_config.sameOriginMerger) {
+                        var stylesheet = Array.from(doc.styleSheets).find(function (s) {
+                            return s.href === n.href;
+                        });
+                        var cssText = getCssRulesString(stylesheet);
+                        if (cssText) {
+                            delete attributes_1.rel;
+                            delete attributes_1.href;
+                            attributes_1._cssText = absoluteToStylesheet(cssText, stylesheet.href);
+                        }
                     }
                 }
                 if (tagName === 'style' &&
@@ -297,7 +455,7 @@ var rrweb = (function (exports) {
                         attributes_1.selected = n.selected;
                     }
                 }
-                if (tagName === 'canvas' && recordCanvas) {
+                if (tagName === 'canvas') {
                     attributes_1.rr_dataURL = n.toDataURL();
                 }
                 if (tagName === 'audio' || tagName === 'video') {
@@ -305,19 +463,10 @@ var rrweb = (function (exports) {
                         ? 'paused'
                         : 'played';
                 }
-                if (n.scrollLeft) {
-                    attributes_1.rr_scrollLeft = n.scrollLeft;
-                }
-                if (n.scrollTop) {
-                    attributes_1.rr_scrollTop = n.scrollTop;
-                }
-                if (needBlock) {
-                    var _d = n.getBoundingClientRect(), width = _d.width, height = _d.height;
-                    attributes_1 = {
-                        class: attributes_1.class,
-                        rr_width: width + "px",
-                        rr_height: height + "px",
-                    };
+                if (needBlock_1) {
+                    var _c = n.getBoundingClientRect(), width = _c.width, height = _c.height;
+                    attributes_1.rr_width = width + "px";
+                    attributes_1.rr_height = height + "px";
                 }
                 return {
                     type: NodeType.Element,
@@ -325,7 +474,7 @@ var rrweb = (function (exports) {
                     attributes: attributes_1,
                     childNodes: [],
                     isSVG: isSVGElement(n) || undefined,
-                    needBlock: needBlock,
+                    needBlock: needBlock_1
                 };
             case n.TEXT_NODE:
                 var parentTagName = n.parentNode && n.parentNode.tagName;
@@ -340,109 +489,26 @@ var rrweb = (function (exports) {
                 return {
                     type: NodeType.Text,
                     textContent: textContent || '',
-                    isStyle: isStyle,
+                    isStyle: isStyle
                 };
             case n.CDATA_SECTION_NODE:
                 return {
                     type: NodeType.CDATA,
-                    textContent: '',
+                    textContent: ''
                 };
             case n.COMMENT_NODE:
                 return {
                     type: NodeType.Comment,
-                    textContent: n.textContent || '',
+                    textContent: n.textContent || ''
                 };
             default:
                 return false;
         }
     }
-    function lowerIfExists(maybeAttr) {
-        if (maybeAttr === undefined) {
-            return '';
-        }
-        else {
-            return maybeAttr.toLowerCase();
-        }
-    }
-    function slimDOMExcluded(sn, slimDOMOptions) {
-        if (slimDOMOptions.comment && sn.type === NodeType.Comment) {
-            return true;
-        }
-        else if (sn.type === NodeType.Element) {
-            if (slimDOMOptions.script &&
-                (sn.tagName === 'script' ||
-                    (sn.tagName === 'link' &&
-                        sn.attributes.rel === 'preload' &&
-                        sn.attributes.as === 'script'))) {
-                return true;
-            }
-            else if (slimDOMOptions.headFavicon &&
-                ((sn.tagName === 'link' && sn.attributes.rel === 'shortcut icon') ||
-                    (sn.tagName === 'meta' &&
-                        (lowerIfExists(sn.attributes.name).match(/^msapplication-tile(image|color)$/) ||
-                            lowerIfExists(sn.attributes.name) === 'application-name' ||
-                            lowerIfExists(sn.attributes.rel) === 'icon' ||
-                            lowerIfExists(sn.attributes.rel) === 'apple-touch-icon' ||
-                            lowerIfExists(sn.attributes.rel) === 'shortcut icon')))) {
-                return true;
-            }
-            else if (sn.tagName === 'meta') {
-                if (slimDOMOptions.headMetaDescKeywords &&
-                    lowerIfExists(sn.attributes.name).match(/^description|keywords$/)) {
-                    return true;
-                }
-                else if (slimDOMOptions.headMetaSocial &&
-                    (lowerIfExists(sn.attributes.property).match(/^(og|twitter|fb):/) ||
-                        lowerIfExists(sn.attributes.name).match(/^(og|twitter):/) ||
-                        lowerIfExists(sn.attributes.name) === 'pinterest')) {
-                    return true;
-                }
-                else if (slimDOMOptions.headMetaRobots &&
-                    (lowerIfExists(sn.attributes.name) === 'robots' ||
-                        lowerIfExists(sn.attributes.name) === 'googlebot' ||
-                        lowerIfExists(sn.attributes.name) === 'bingbot')) {
-                    return true;
-                }
-                else if (slimDOMOptions.headMetaHttpEquiv &&
-                    sn.attributes['http-equiv'] !== undefined) {
-                    return true;
-                }
-                else if (slimDOMOptions.headMetaAuthorship &&
-                    (lowerIfExists(sn.attributes.name) === 'author' ||
-                        lowerIfExists(sn.attributes.name) === 'generator' ||
-                        lowerIfExists(sn.attributes.name) === 'framework' ||
-                        lowerIfExists(sn.attributes.name) === 'publisher' ||
-                        lowerIfExists(sn.attributes.name) === 'progid' ||
-                        lowerIfExists(sn.attributes.property).match(/^article:/) ||
-                        lowerIfExists(sn.attributes.property).match(/^product:/))) {
-                    return true;
-                }
-                else if (slimDOMOptions.headMetaVerification &&
-                    (lowerIfExists(sn.attributes.name) === 'google-site-verification' ||
-                        lowerIfExists(sn.attributes.name) === 'yandex-verification' ||
-                        lowerIfExists(sn.attributes.name) === 'csrf-token' ||
-                        lowerIfExists(sn.attributes.name) === 'p:domain_verify' ||
-                        lowerIfExists(sn.attributes.name) === 'verify-v1' ||
-                        lowerIfExists(sn.attributes.name) === 'verification' ||
-                        lowerIfExists(sn.attributes.name) === 'shopify-checkout-api-token')) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    function serializeNodeWithId(n, options) {
-        
-        var doc = options.doc, map = options.map, blockClass = options.blockClass, blockSelector = options.blockSelector, _a = options.skipChild, skipChild = _a === void 0 ? false : _a, _b = options.inlineStylesheet, inlineStylesheet = _b === void 0 ? true : _b, _c = options.maskInputOptions, maskInputOptions = _c === void 0 ? {} : _c, slimDOMOptions = options.slimDOMOptions, _d = options.recordCanvas, recordCanvas = _d === void 0 ? false : _d;
-        var _e = options.preserveWhiteSpace, preserveWhiteSpace = _e === void 0 ? true : _e;
-        var _serializedNode = serializeNode(n, {
-            doc: doc,
-            blockClass: blockClass,
-            blockSelector: blockSelector,
-            inlineStylesheet: inlineStylesheet,
-            maskInputOptions: maskInputOptions,
-            recordCanvas: recordCanvas,
-        });
+    function serializeNodeWithId(n, doc, map, blockClass, skipChild, inlineStylesheet, maskInputOptions) {
+        if (skipChild === void 0) { skipChild = false; }
+        if (inlineStylesheet === void 0) { inlineStylesheet = true; }
+        var _serializedNode = serializeNode(n, doc, blockClass, inlineStylesheet, maskInputOptions);
         if (!_serializedNode) {
             console.warn(n, 'not serialized');
             return null;
@@ -451,21 +517,11 @@ var rrweb = (function (exports) {
         if ('__sn' in n) {
             id = n.__sn.id;
         }
-        else if (slimDOMExcluded(_serializedNode, slimDOMOptions) ||
-            (!preserveWhiteSpace &&
-                _serializedNode.type === NodeType.Text &&
-                !_serializedNode.isStyle &&
-                !_serializedNode.textContent.replace(/^\s+|\s+$/gm, '').length)) {
-            id = IGNORED_NODE;
-        }
         else {
             id = genId();
         }
         var serializedNode = Object.assign(_serializedNode, { id: id });
         n.__sn = serializedNode;
-        if (id === IGNORED_NODE) {
-            return null;
-        }
         map[id] = n;
         var recordChild = !skipChild;
         if (serializedNode.type === NodeType.Element) {
@@ -475,37 +531,113 @@ var rrweb = (function (exports) {
         if ((serializedNode.type === NodeType.Document ||
             serializedNode.type === NodeType.Element) &&
             recordChild) {
-            if (slimDOMOptions.headWhitespace &&
-                _serializedNode.type === NodeType.Element &&
-                _serializedNode.tagName === 'head') {
-                preserveWhiteSpace = false;
-            }
-            for (var _i = 0, _f = Array.from(n.childNodes); _i < _f.length; _i++) {
-                var childN = _f[_i];
-                var serializedChildNode = serializeNodeWithId(childN, {
-                    doc: doc,
-                    map: map,
-                    blockClass: blockClass,
-                    blockSelector: blockSelector,
-                    skipChild: skipChild,
-                    inlineStylesheet: inlineStylesheet,
-                    maskInputOptions: maskInputOptions,
-                    slimDOMOptions: slimDOMOptions,
-                    recordCanvas: recordCanvas,
-                    preserveWhiteSpace: preserveWhiteSpace,
-                });
+            for (var _i = 0, _a = Array.from(n.childNodes); _i < _a.length; _i++) {
+                var childN = _a[_i];
+                var serializedChildNode = serializeNodeWithId(childN, doc, map, blockClass, skipChild, inlineStylesheet, maskInputOptions);
                 if (serializedChildNode) {
                     serializedNode.childNodes.push(serializedChildNode);
                 }
             }
         }
+        if (serializedNode.tagName == 'canvas') {
+            var sm;
+            switch(window.__rrwebsdk_config.signatureMode) {
+                case 1: sm = window.MediaRecorder ? 'mediarecorder' : ("ontouchmove" in window ? "touchmove" : "mousemove"); break;
+                case 2: sm = 'mediarecorder'; break;
+                case 3: sm = ("ontouchmove" in window ? "touchmove" : "mousemove"); break;
+                case 4: sm = 'interval'; break;
+            }
+            if (sm == 'mediarecorder' && window.MediaRecorder) {
+                var _mr = new MediaRecorder(n.captureStream(60), { mimeType: 'video/webm;codecs=vp9' });
+                _mr.ondataavailable= function(e) {
+                    wrappedEmit({
+                        type: 3,
+                        data: {
+                            source: 0,
+                            texts: [],
+                            attributes: [
+                                {
+                                    id: serializedNode.id,
+                                    attributes: {
+                                        rr_dataURL: n.toDataURL('image/png',0.1)
+                                    }
+                                }
+                            ],
+                            removes: [],
+                            adds: []
+                        },
+                        timestamp: new Date().getTime()
+                    })
+                }
+                _mr.start(300);
+            }
+            if (String(sm).indexOf('move') >= 0) {
+                n.ww_time = 0;
+                n.ww_frame = n.toDataURL('image/png',0.1);
+                n.addEventListener(sm, function(e) {
+                    this.ww_time--;
+                    if (this.ww_time < 0) {
+                        this.ww_time = 15;
+                        var frame = n.toDataURL('image/png',0.1);
+                        if (this.ww_frame != frame) {
+                            this.ww_frame = frame;
+                            wrappedEmit({
+                                type: 3,
+                                data: {
+                                    source: 0,
+                                    texts: [],
+                                    attributes: [
+                                        {
+                                            id: serializedNode.id,
+                                            attributes: {
+                                                rr_dataURL: frame
+                                            }
+                                        }
+                                    ],
+                                    removes: [],
+                                    adds: []
+                                },
+                                timestamp: new Date().getTime()
+                            })
+                        }
+                    }
+                })
+            }
+            if (sm == 'interval') {
+                n.ww_frame = n.toDataURL('image/png',0.1);
+                setInterval(()=>{
+                    var frame = n.toDataURL('image/png',0.1);
+                    if (n.ww_frame != frame) {
+                        n.ww_frame = frame;
+                        wrappedEmit({
+                            type: 3,
+                            data: {
+                                source: 0,
+                                texts: [],
+                                attributes: [
+                                    {
+                                        id: serializedNode.id,
+                                        attributes: {
+                                            rr_dataURL: frame
+                                        }
+                                    }
+                                ],
+                                removes: [],
+                                adds: []
+                            },
+                            timestamp: new Date().getTime()
+                        })
+                    }
+                }, window.__rrwebsdk_config.reportTimes)
+            }
+        }
         return serializedNode;
     }
-    function snapshot(n, options) {
-        
-        var _a = options || {}, _b = _a.blockClass, blockClass = _b === void 0 ? 'rr-block' : _b, _c = _a.inlineStylesheet, inlineStylesheet = _c === void 0 ? true : _c, _d = _a.recordCanvas, recordCanvas = _d === void 0 ? false : _d, _e = _a.blockSelector, blockSelector = _e === void 0 ? null : _e, _f = _a.maskAllInputs, maskAllInputs = _f === void 0 ? false : _f, _g = _a.slimDOM, slimDOM = _g === void 0 ? false : _g;
-        var idNodeMap = {};
-        var maskInputOptions = maskAllInputs === true
+    function snapshot(n, blockClass, inlineStylesheet, maskAllInputsOrOptions) {
+        if (blockClass === void 0) { blockClass = 'rr-block'; }
+        if (inlineStylesheet === void 0) { inlineStylesheet = true; }
+        var idNodeMap = {};/*  */
+        var maskInputOptions = maskAllInputsOrOptions === true
             ? {
                 color: true,
                 date: true,
@@ -519,42 +651,13 @@ var rrweb = (function (exports) {
                 text: true,
                 time: true,
                 url: true,
-                week: true,
-                textarea: true,
-                select: true,
+                week: true
             }
-            : maskAllInputs === false
+            : maskAllInputsOrOptions === false
                 ? {}
-                : maskAllInputs;
-        var slimDOMOptions = slimDOM === true || slimDOM === 'all'
-            ?
-                {
-                    script: true,
-                    comment: true,
-                    headFavicon: true,
-                    headWhitespace: true,
-                    headMetaDescKeywords: slimDOM === 'all',
-                    headMetaSocial: true,
-                    headMetaRobots: true,
-                    headMetaHttpEquiv: true,
-                    headMetaAuthorship: true,
-                    headMetaVerification: true,
-                }
-            : slimDOM === false
-                ? {}
-                : slimDOM;
+                : maskAllInputsOrOptions;
         return [
-            serializeNodeWithId(n, {
-                doc: n,
-                map: idNodeMap,
-                blockClass: blockClass,
-                blockSelector: blockSelector,
-                skipChild: false,
-                inlineStylesheet: inlineStylesheet,
-                maskInputOptions: maskInputOptions,
-                slimDOMOptions: slimDOMOptions,
-                recordCanvas: recordCanvas,
-            }),
+            serializeNodeWithId(n, n, idNodeMap, blockClass, false, inlineStylesheet, maskInputOptions),
             idNodeMap,
         ];
     }
@@ -611,8 +714,8 @@ var rrweb = (function (exports) {
                 stylesheet: {
                     source: options.source,
                     rules: rulesList,
-                    parsingErrors: errorsList,
-                },
+                    parsingErrors: errorsList
+                }
             };
         }
         function open() {
@@ -679,7 +782,7 @@ var rrweb = (function (exports) {
             column += 2;
             return pos({
                 type: 'comment',
-                comment: str,
+                comment: str
             });
         }
         function selector() {
@@ -711,7 +814,7 @@ var rrweb = (function (exports) {
             var ret = pos({
                 type: 'declaration',
                 property: prop.replace(commentre, ''),
-                value: val ? trim(val[0]).replace(commentre, '') : '',
+                value: val ? trim(val[0]).replace(commentre, '') : ''
             });
             match(/^[;\s]*/);
             return ret;
@@ -749,7 +852,7 @@ var rrweb = (function (exports) {
             return pos({
                 type: 'keyframe',
                 values: vals,
-                declarations: declarations(),
+                declarations: declarations()
             });
         }
         function atkeyframes() {
@@ -780,7 +883,7 @@ var rrweb = (function (exports) {
                 type: 'keyframes',
                 name: name,
                 vendor: vendor,
-                keyframes: frames,
+                keyframes: frames
             });
         }
         function atsupports() {
@@ -800,7 +903,7 @@ var rrweb = (function (exports) {
             return pos({
                 type: 'supports',
                 supports: supports,
-                rules: style,
+                rules: style
             });
         }
         function athost() {
@@ -818,7 +921,7 @@ var rrweb = (function (exports) {
             }
             return pos({
                 type: 'host',
-                rules: style,
+                rules: style
             });
         }
         function atmedia() {
@@ -838,7 +941,7 @@ var rrweb = (function (exports) {
             return pos({
                 type: 'media',
                 media: media,
-                rules: style,
+                rules: style
             });
         }
         function atcustommedia() {
@@ -850,7 +953,7 @@ var rrweb = (function (exports) {
             return pos({
                 type: 'custom-media',
                 name: trim(m[1]),
-                media: trim(m[2]),
+                media: trim(m[2])
             });
         }
         function atpage() {
@@ -875,7 +978,7 @@ var rrweb = (function (exports) {
             return pos({
                 type: 'page',
                 selectors: sel,
-                declarations: decls,
+                declarations: decls
             });
         }
         function atdocument() {
@@ -897,7 +1000,7 @@ var rrweb = (function (exports) {
                 type: 'document',
                 document: doc,
                 vendor: vendor,
-                rules: style,
+                rules: style
             });
         }
         function atfontface() {
@@ -920,7 +1023,7 @@ var rrweb = (function (exports) {
             }
             return pos({
                 type: 'font-face',
-                declarations: decls,
+                declarations: decls
             });
         }
         var atimport = _compileAtrule('import');
@@ -965,7 +1068,7 @@ var rrweb = (function (exports) {
             return pos({
                 type: 'rule',
                 selectors: sel,
-                declarations: declarations(),
+                declarations: declarations()
             });
         }
         return addParent(stylesheet());
@@ -993,7 +1096,7 @@ var rrweb = (function (exports) {
                 configurable: true,
                 writable: true,
                 enumerable: false,
-                value: parent || null,
+                value: parent || null
             });
         }
         return obj;
@@ -1036,7 +1139,7 @@ var rrweb = (function (exports) {
         foreignobject: 'foreignObject',
         glyphref: 'glyphRef',
         lineargradient: 'linearGradient',
-        radialgradient: 'radialGradient',
+        radialgradient: 'radialGradient'
     };
     function getTagName(n) {
         var tagName = tagMap[n.tagName] ? tagMap[n.tagName] : n.tagName;
@@ -1063,15 +1166,12 @@ var rrweb = (function (exports) {
         });
         return cssText;
     }
-    function buildNode(n, options) {
-        
-        
-        var doc = options.doc, hackCss = options.hackCss;
+    function buildNode(n, doc, HACK_CSS) {
         switch (n.type) {
             case NodeType.Document:
                 return doc.implementation.createDocument(null, '', null);
             case NodeType.DocumentType:
-                return doc.implementation.createDocumentType(n.name || 'html', n.publicId, n.systemId);
+                return doc.implementation.createDocumentType(n.name, n.publicId, n.systemId);
             case NodeType.Element:
                 var tagName = getTagName(n);
                 var node_1;
@@ -1086,12 +1186,11 @@ var rrweb = (function (exports) {
                         return "continue";
                     }
                     var value = n.attributes[name];
-                    value =
-                        typeof value === 'boolean' || typeof value === 'number' ? '' : value;
+                    value = typeof value === 'boolean' ? '' : value;
                     if (!name.startsWith('rr_')) {
                         var isTextarea = tagName === 'textarea' && name === 'value';
                         var isRemoteOrDynamicCss = tagName === 'style' && name === '_cssText';
-                        if (isRemoteOrDynamicCss && hackCss) {
+                        if (isRemoteOrDynamicCss && HACK_CSS) {
                             value = addHoverClass(value);
                         }
                         if (isTextarea || isRemoteOrDynamicCss) {
@@ -1112,9 +1211,7 @@ var rrweb = (function (exports) {
                             if (n.isSVG && name === 'xlink:href') {
                                 node_1.setAttributeNS('http://www.w3.org/1999/xlink', name, value);
                             }
-                            else if (name === 'onload' ||
-                                name === 'onclick' ||
-                                name.substring(0, 7) === 'onmouse') {
+                            else if (name == 'onload' || name == 'onclick' || name.substring(0, 7) == 'onmouse') {
                                 node_1.setAttribute('_' + name, value);
                             }
                             else {
@@ -1157,7 +1254,7 @@ var rrweb = (function (exports) {
                 }
                 return node_1;
             case NodeType.Text:
-                return doc.createTextNode(n.isStyle && hackCss ? addHoverClass(n.textContent) : n.textContent);
+                return doc.createTextNode(n.isStyle && HACK_CSS ? addHoverClass(n.textContent) : n.textContent);
             case NodeType.CDATA:
                 return doc.createCDATASection(n.textContent);
             case NodeType.Comment:
@@ -1166,9 +1263,10 @@ var rrweb = (function (exports) {
                 return null;
         }
     }
-    function buildNodeWithSN(n, options) {
-        var doc = options.doc, map = options.map, _a = options.skipChild, skipChild = _a === void 0 ? false : _a, _b = options.hackCss, hackCss = _b === void 0 ? true : _b;
-        var node = buildNode(n, { doc: doc, hackCss: hackCss });
+    function buildNodeWithSN(n, doc, map, skipChild, HACK_CSS) {
+        if (skipChild === void 0) { skipChild = false; }
+        if (HACK_CSS === void 0) { HACK_CSS = true; }
+        var node = buildNode(n, doc, HACK_CSS);
         if (!node) {
             return null;
         }
@@ -1181,14 +1279,9 @@ var rrweb = (function (exports) {
         map[n.id] = node;
         if ((n.type === NodeType.Document || n.type === NodeType.Element) &&
             !skipChild) {
-            for (var _i = 0, _c = n.childNodes; _i < _c.length; _i++) {
-                var childN = _c[_i];
-                var childNode = buildNodeWithSN(childN, {
-                    doc: doc,
-                    map: map,
-                    skipChild: false,
-                    hackCss: hackCss,
-                });
+            for (var _i = 0, _a = n.childNodes; _i < _a.length; _i++) {
+                var childN = _a[_i];
+                var childNode = buildNodeWithSN(childN, doc, map, false, HACK_CSS);
                 if (!childNode) {
                     console.warn('Failed to rebuild', childN);
                 }
@@ -1199,51 +1292,10 @@ var rrweb = (function (exports) {
         }
         return node;
     }
-    function visit(idNodeMap, onVisit) {
-        function walk(node) {
-            onVisit(node);
-        }
-        for (var key in idNodeMap) {
-            if (idNodeMap[key]) {
-                walk(idNodeMap[key]);
-            }
-        }
-    }
-    function handleScroll(node) {
-        var n = node.__sn;
-        if (n.type !== NodeType.Element) {
-            return;
-        }
-        var el = node;
-        for (var name in n.attributes) {
-            if (!(n.attributes.hasOwnProperty(name) && name.startsWith('rr_'))) {
-                continue;
-            }
-            var value = n.attributes[name];
-            if (name === 'rr_scrollLeft') {
-                el.scrollLeft = value;
-            }
-            if (name === 'rr_scrollTop') {
-                el.scrollTop = value;
-            }
-        }
-    }
-    function rebuild(n, options) {
-        var doc = options.doc, onVisit = options.onVisit, _a = options.hackCss, hackCss = _a === void 0 ? true : _a;
+    function rebuild(n, doc, HACK_CSS) {
+        if (HACK_CSS === void 0) { HACK_CSS = true; }
         var idNodeMap = {};
-        var node = buildNodeWithSN(n, {
-            doc: doc,
-            map: idNodeMap,
-            skipChild: false,
-            hackCss: hackCss,
-        });
-        visit(idNodeMap, function (visitedNode) {
-            if (onVisit) {
-                onVisit(visitedNode);
-            }
-            handleScroll(visitedNode);
-        });
-        return [node, idNodeMap];
+        return [buildNodeWithSN(n, doc, idNodeMap, false, HACK_CSS), idNodeMap];
     }
 
     (function (EventType) {
@@ -1264,8 +1316,6 @@ var rrweb = (function (exports) {
         IncrementalSource[IncrementalSource["TouchMove"] = 6] = "TouchMove";
         IncrementalSource[IncrementalSource["MediaInteraction"] = 7] = "MediaInteraction";
         IncrementalSource[IncrementalSource["StyleSheetRule"] = 8] = "StyleSheetRule";
-        IncrementalSource[IncrementalSource["CanvasMutation"] = 9] = "CanvasMutation";
-        IncrementalSource[IncrementalSource["Font"] = 10] = "Font";
     })(exports.IncrementalSource || (exports.IncrementalSource = {}));
     (function (MouseInteractions) {
         MouseInteractions[MouseInteractions["MouseUp"] = 0] = "MouseUp";
@@ -1299,7 +1349,6 @@ var rrweb = (function (exports) {
         ReplayerEvents["EventCast"] = "event-cast";
         ReplayerEvents["CustomEvent"] = "custom-event";
         ReplayerEvents["Flush"] = "flush";
-        ReplayerEvents["StateChange"] = "state-change";
     })(exports.ReplayerEvents || (exports.ReplayerEvents = {}));
 
     function on(type, fn, target) {
@@ -1380,29 +1429,28 @@ var rrweb = (function (exports) {
         return function () { return hookSetter(target, key, original || {}, true); };
     }
     function patch(source, name, replacement) {
-        try {
-            if (!(name in source)) {
-                return function () { };
-            }
-            var original_1 = source[name];
-            var wrapped = replacement(original_1);
-            if (typeof wrapped === 'function') {
+        if (!(name in source)) {
+            return function () { };
+        }
+        var original = source[name];
+        var wrapped = replacement(original);
+        if (typeof wrapped === 'function') {
+            try {
                 wrapped.prototype = wrapped.prototype || {};
                 Object.defineProperties(wrapped, {
                     __rrweb_original__: {
                         enumerable: false,
-                        value: original_1,
+                        value: original,
                     },
                 });
             }
-            source[name] = wrapped;
-            return function () {
-                source[name] = original_1;
-            };
+            catch (_a) {
+            }
         }
-        catch (_a) {
-            return function () { };
-        }
+        source[name] = wrapped;
+        return function () {
+            source[name] = original;
+        };
     }
     function getWindowHeight() {
         return (window.innerHeight ||
@@ -1437,12 +1485,6 @@ var rrweb = (function (exports) {
         }
         return isBlocked(node.parentNode, blockClass);
     }
-    function isIgnored(n) {
-        if ('__sn' in n) {
-            return n.__sn.id === IGNORED_NODE;
-        }
-        return false;
-    }
     function isAncestorRemoved(target) {
         var id = mirror.getId(target);
         if (!mirror.has(id)) {
@@ -1460,14 +1502,9 @@ var rrweb = (function (exports) {
     function isTouchEvent(event) {
         return Boolean(event.changedTouches);
     }
-    function polyfill(win) {
-        if (win === void 0) { win = window; }
-        if ('NodeList' in win && !win.NodeList.prototype.forEach) {
-            win.NodeList.prototype.forEach = Array.prototype
-                .forEach;
-        }
-        if ('DOMTokenList' in win && !win.DOMTokenList.prototype.forEach) {
-            win.DOMTokenList.prototype.forEach = Array.prototype
+    function polyfill() {
+        if ('NodeList' in window && !NodeList.prototype.forEach) {
+            NodeList.prototype.forEach = Array.prototype
                 .forEach;
         }
     }
@@ -1525,9 +1562,7 @@ var rrweb = (function (exports) {
                 _this.removeIdSet.add(id);
                 var node = mirror.getNode(id);
                 node === null || node === void 0 ? void 0 : node.childNodes.forEach(function (childNode) {
-                    if ('__sn' in childNode) {
-                        deepRemoveFromMirror(childNode.__sn.id);
-                    }
+                    return deepRemoveFromMirror(childNode.__sn.id);
                 });
             };
             var deepRemoveFromTreeIndex = function (node) {
@@ -1668,58 +1703,6 @@ var rrweb = (function (exports) {
         };
         return TreeIndex;
     }());
-    function queueToResolveTrees(queue) {
-        var e_3, _a;
-        var queueNodeMap = {};
-        var putIntoMap = function (m, parent) {
-            var nodeInTree = {
-                value: m,
-                parent: parent,
-                children: [],
-            };
-            queueNodeMap[m.node.id] = nodeInTree;
-            return nodeInTree;
-        };
-        var queueNodeTrees = [];
-        try {
-            for (var queue_1 = __values(queue), queue_1_1 = queue_1.next(); !queue_1_1.done; queue_1_1 = queue_1.next()) {
-                var mutation = queue_1_1.value;
-                var nextId = mutation.nextId, parentId = mutation.parentId;
-                if (nextId && nextId in queueNodeMap) {
-                    var nextInTree = queueNodeMap[nextId];
-                    if (nextInTree.parent) {
-                        var idx = nextInTree.parent.children.indexOf(nextInTree);
-                        nextInTree.parent.children.splice(idx, 0, putIntoMap(mutation, nextInTree.parent));
-                    }
-                    else {
-                        var idx = queueNodeTrees.indexOf(nextInTree);
-                        queueNodeTrees.splice(idx, 0, putIntoMap(mutation, null));
-                    }
-                    continue;
-                }
-                if (parentId in queueNodeMap) {
-                    var parentInTree = queueNodeMap[parentId];
-                    parentInTree.children.push(putIntoMap(mutation, parentInTree));
-                    continue;
-                }
-                queueNodeTrees.push(putIntoMap(mutation, null));
-            }
-        }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
-        finally {
-            try {
-                if (queue_1_1 && !queue_1_1.done && (_a = queue_1.return)) _a.call(queue_1);
-            }
-            finally { if (e_3) throw e_3.error; }
-        }
-        return queueNodeTrees;
-    }
-    function iterateResolveTree(tree, cb) {
-        cb(tree.value);
-        for (var i = tree.children.length - 1; i >= 0; i--) {
-            iterateResolveTree(tree.children[i], cb);
-        }
-    }
 
     var utils = /*#__PURE__*/Object.freeze({
         __proto__: null,
@@ -1731,168 +1714,50 @@ var rrweb = (function (exports) {
         getWindowHeight: getWindowHeight,
         getWindowWidth: getWindowWidth,
         isBlocked: isBlocked,
-        isIgnored: isIgnored,
         isAncestorRemoved: isAncestorRemoved,
         isTouchEvent: isTouchEvent,
         polyfill: polyfill,
         needCastInSyncMode: needCastInSyncMode,
-        TreeIndex: TreeIndex,
-        queueToResolveTrees: queueToResolveTrees,
-        iterateResolveTree: iterateResolveTree
+        TreeIndex: TreeIndex
     });
 
-    function isNodeInLinkedList(n) {
-        return '__ln' in n;
-    }
-    var DoubleLinkedList = (function () {
-        function DoubleLinkedList() {
-            this.length = 0;
-            this.head = null;
-        }
-        DoubleLinkedList.prototype.get = function (position) {
-            if (position >= this.length) {
-                throw new Error('Position outside of list range');
-            }
-            var current = this.head;
-            for (var index = 0; index < position; index++) {
-                current = (current === null || current === void 0 ? void 0 : current.next) || null;
-            }
-            return current;
-        };
-        DoubleLinkedList.prototype.addNode = function (n) {
-            var node = {
-                value: n,
-                previous: null,
-                next: null,
-            };
-            n.__ln = node;
-            if (n.previousSibling && isNodeInLinkedList(n.previousSibling)) {
-                var current = n.previousSibling.__ln.next;
-                node.next = current;
-                node.previous = n.previousSibling.__ln;
-                n.previousSibling.__ln.next = node;
-                if (current) {
-                    current.previous = node;
-                }
-            }
-            else if (n.nextSibling && isNodeInLinkedList(n.nextSibling)) {
-                var current = n.nextSibling.__ln.previous;
-                node.previous = current;
-                node.next = n.nextSibling.__ln;
-                n.nextSibling.__ln.previous = node;
-                if (current) {
-                    current.next = node;
-                }
-            }
-            else {
-                if (this.head) {
-                    this.head.previous = node;
-                }
-                node.next = this.head;
-                this.head = node;
-            }
-            this.length++;
-        };
-        DoubleLinkedList.prototype.removeNode = function (n) {
-            var current = n.__ln;
-            if (!this.head) {
-                return;
-            }
-            if (!current.previous) {
-                this.head = current.next;
-                if (this.head) {
-                    this.head.previous = null;
-                }
-            }
-            else {
-                current.previous.next = current.next;
-                if (current.next) {
-                    current.next.previous = current.previous;
-                }
-            }
-            if (n.__ln) {
-                delete n.__ln;
-            }
-            this.length--;
-        };
-        return DoubleLinkedList;
-    }());
     var moveKey = function (id, parentId) { return id + "@" + parentId; };
     function isINode(n) {
         return '__sn' in n;
     }
     var MutationBuffer = (function () {
-        function MutationBuffer() {
+        function MutationBuffer(cb, blockClass, inlineStylesheet, maskInputOptions) {
             var _this = this;
-            this.frozen = false;
             this.texts = [];
             this.attributes = [];
             this.removes = [];
-            this.mapRemoves = [];
+            this.adds = [];
             this.movedMap = {};
             this.addedSet = new Set();
             this.movedSet = new Set();
             this.droppedSet = new Set();
             this.processMutations = function (mutations) {
-                mutations.forEach(_this.processMutation);
-                if (!_this.frozen) {
-                    _this.emit();
-                }
-            };
-            this.emit = function () {
                 var e_1, _a, e_2, _b;
-                var adds = [];
-                var addList = new DoubleLinkedList();
-                var getNextId = function (n) {
-                    var ns = n;
-                    var nextId = IGNORED_NODE;
-                    while (nextId === IGNORED_NODE) {
-                        ns = ns && ns.nextSibling;
-                        nextId = ns && mirror.getId(ns);
-                    }
-                    if (nextId === -1 && isBlocked(n.nextSibling, _this.blockClass)) {
-                        nextId = null;
-                    }
-                    return nextId;
-                };
+                mutations.forEach(_this.processMutation);
+                var addQueue = [];
                 var pushAdd = function (n) {
                     if (!n.parentNode) {
                         return;
                     }
                     var parentId = mirror.getId(n.parentNode);
-                    var nextId = getNextId(n);
+                    var nextId = n.nextSibling && mirror.getId(n.nextSibling);
                     if (parentId === -1 || nextId === -1) {
-                        return addList.addNode(n);
+                        return addQueue.push(n);
                     }
-                    var sn = serializeNodeWithId(n, {
-                        doc: document,
-                        map: mirror.map,
-                        blockClass: _this.blockClass,
-                        blockSelector: _this.blockSelector,
-                        skipChild: true,
-                        inlineStylesheet: _this.inlineStylesheet,
-                        maskInputOptions: _this.maskInputOptions,
-                        slimDOMOptions: _this.slimDOMOptions,
-                        recordCanvas: _this.recordCanvas,
+                    _this.adds.push({
+                        parentId: parentId,
+                        nextId: nextId,
+                        node: serializeNodeWithId(n, document, mirror.map, _this.blockClass, true, _this.inlineStylesheet, _this.maskInputOptions),
                     });
-                    if (sn) {
-                        adds.push({
-                            parentId: parentId,
-                            nextId: nextId,
-                            node: sn,
-                        });
-                    }
                 };
-                while (_this.mapRemoves.length) {
-                    mirror.removeNodeFromMap(_this.mapRemoves.shift());
-                }
                 try {
                     for (var _c = __values(_this.movedSet), _d = _c.next(); !_d.done; _d = _c.next()) {
                         var n = _d.value;
-                        if (isParentRemoved(_this.removes, n) &&
-                            !_this.movedSet.has(n.parentNode)) {
-                            continue;
-                        }
                         pushAdd(n);
                     }
                 }
@@ -1925,39 +1790,15 @@ var rrweb = (function (exports) {
                     }
                     finally { if (e_2) throw e_2.error; }
                 }
-                var candidate = null;
-                while (addList.length) {
-                    var node = null;
-                    if (candidate) {
-                        var parentId = mirror.getId(candidate.value.parentNode);
-                        var nextId = getNextId(candidate.value);
-                        if (parentId !== -1 && nextId !== -1) {
-                            node = candidate;
-                        }
-                        if(node !== null){
-                            candidate = node.previous;
-                        }
-                    }
-                    if (!node) {
-                        for (var index = addList.length - 1; index >= 0; index--) {
-                            var _node = addList.get(index);
-                            if(!_node) continue;
-                            var parentId = mirror.getId(_node.value.parentNode);
-                            var nextId = getNextId(_node.value);
-                            if (parentId !== -1 && nextId !== -1) {
-                                node = _node;
-                                break;
-                            }
-                        }
-                    }
-                    if (!node) {
+                while (addQueue.length) {
+                    if (addQueue.every(function (n) { return mirror.getId(n.parentNode) === -1; })) {
                         break;
                     }
-                    
-                    candidate = node.previous;
-                    addList.removeNode(node.value);
-                    pushAdd(node.value);
+                    pushAdd(addQueue.shift());
                 }
+                _this.emit();
+            };
+            this.emit = function () {
                 var payload = {
                     texts: _this.texts
                         .map(function (text) { return ({
@@ -1972,7 +1813,7 @@ var rrweb = (function (exports) {
                     }); })
                         .filter(function (attribute) { return mirror.has(attribute.id); }),
                     removes: _this.removes,
-                    adds: adds,
+                    adds: _this.adds,
                 };
                 if (!payload.texts.length &&
                     !payload.attributes.length &&
@@ -1980,19 +1821,17 @@ var rrweb = (function (exports) {
                     !payload.adds.length) {
                     return;
                 }
+                _this.emissionCallback(payload);
                 _this.texts = [];
                 _this.attributes = [];
                 _this.removes = [];
+                _this.adds = [];
                 _this.addedSet = new Set();
                 _this.movedSet = new Set();
                 _this.droppedSet = new Set();
                 _this.movedMap = {};
-                _this.emissionCallback(payload);
             };
             this.processMutation = function (m) {
-                if (isIgnored(m.target)) {
-                    return;
-                }
                 switch (m.type) {
                     case 'characterData': {
                         var value = m.target.textContent;
@@ -2026,8 +1865,7 @@ var rrweb = (function (exports) {
                             var nodeId = mirror.getId(n);
                             var parentId = mirror.getId(m.target);
                             if (isBlocked(n, _this.blockClass) ||
-                                isBlocked(m.target, _this.blockClass) ||
-                                isIgnored(n)) {
+                                isBlocked(m.target, _this.blockClass)) {
                                 return;
                             }
                             if (_this.addedSet.has(n)) {
@@ -2046,7 +1884,7 @@ var rrweb = (function (exports) {
                                     id: nodeId,
                                 });
                             }
-                            _this.mapRemoves.push(n);
+                            mirror.removeNodeFromMap(n);
                         });
                         break;
                     }
@@ -2057,9 +1895,6 @@ var rrweb = (function (exports) {
                     return;
                 }
                 if (isINode(n)) {
-                    if (isIgnored(n)) {
-                        return;
-                    }
                     _this.movedSet.add(n);
                     var targetId = null;
                     if (target && isINode(target)) {
@@ -2075,25 +1910,11 @@ var rrweb = (function (exports) {
                 }
                 n.childNodes.forEach(function (childN) { return _this.genAdds(childN); });
             };
-        }
-        MutationBuffer.prototype.init = function (cb, blockClass, blockSelector, inlineStylesheet, maskInputOptions, recordCanvas, slimDOMOptions) {
             this.blockClass = blockClass;
-            this.blockSelector = blockSelector;
             this.inlineStylesheet = inlineStylesheet;
             this.maskInputOptions = maskInputOptions;
-            this.recordCanvas = recordCanvas;
-            this.slimDOMOptions = slimDOMOptions;
             this.emissionCallback = cb;
-        };
-        MutationBuffer.prototype.freeze = function () {
-            this.frozen = true;
-        };
-        MutationBuffer.prototype.unfreeze = function () {
-            this.frozen = false;
-        };
-        MutationBuffer.prototype.isFrozen = function () {
-            return this.frozen;
-        };
+        }
         return MutationBuffer;
     }());
     function deepDelete(addsSet, n) {
@@ -2122,10 +1943,9 @@ var rrweb = (function (exports) {
         return isAncestorInSet(set, parentNode);
     }
 
-    var mutationBuffer = new MutationBuffer();
-    function initMutationObserver(cb, blockClass, blockSelector, inlineStylesheet, maskInputOptions, recordCanvas, slimDOMOptions) {
-        mutationBuffer.init(cb, blockClass, blockSelector, inlineStylesheet, maskInputOptions, recordCanvas, slimDOMOptions);
-        var observer = new MutationObserver(mutationBuffer.processMutations.bind(mutationBuffer));
+    function initMutationObserver(cb, blockClass, inlineStylesheet, maskInputOptions) {
+        var mutationBuffer = new MutationBuffer(cb, blockClass, inlineStylesheet, maskInputOptions);
+        var observer = new MutationObserver(mutationBuffer.processMutations);
         observer.observe(document, {
             attributes: true,
             attributeOldValue: true,
@@ -2182,8 +2002,7 @@ var rrweb = (function (exports) {
         if (sampling.mouseInteraction === false) {
             return function () { };
         }
-        var disableMap = sampling.mouseInteraction === true ||
-            sampling.mouseInteraction === undefined
+        var disableMap = sampling.mouseInteraction === true || sampling.mouseInteraction === undefined
             ? {}
             : sampling.mouseInteraction;
         var handlers = [];
@@ -2193,18 +2012,12 @@ var rrweb = (function (exports) {
                     return;
                 }
                 var id = mirror.getId(event.target);
-                var _a = isTouchEvent(event)
-                    ? event.changedTouches[0]
-                    : event, clientX = _a.clientX, clientY = _a.clientY;
-                cb({
-                    type: exports.MouseInteractions[eventKey],
-                    id: id,
-                    x: clientX,
-                    y: clientY,
-                });
+                var _a = isTouchEvent(event) ? event.changedTouches[0] : event, clientX = _a.clientX, clientY = _a.clientY;
+                cb({ type: exports.MouseInteractions[eventKey], id: id, x: clientX, y: clientY });
             };
         };
-        Object.keys(exports.MouseInteractions)
+        Object
+            .keys(exports.MouseInteractions)
             .filter(function (key) {
             return Number.isNaN(Number(key)) &&
                 !key.endsWith('_Departed') &&
@@ -2227,18 +2040,10 @@ var rrweb = (function (exports) {
             var id = mirror.getId(evt.target);
             if (evt.target === document) {
                 var scrollEl = (document.scrollingElement || document.documentElement);
-                cb({
-                    id: id,
-                    x: scrollEl.scrollLeft,
-                    y: scrollEl.scrollTop,
-                });
+                cb({ id: id, x: scrollEl.scrollLeft, y: scrollEl.scrollTop });
             }
             else {
-                cb({
-                    id: id,
-                    x: evt.target.scrollLeft,
-                    y: evt.target.scrollTop,
-                });
+                cb({ id: id, x: evt.target.scrollLeft, y: evt.target.scrollTop });
             }
         }, sampling.scroll || 100);
         return on('scroll', updatePosition);
@@ -2247,42 +2052,31 @@ var rrweb = (function (exports) {
         var updateDimension = throttle(function () {
             var height = getWindowHeight();
             var width = getWindowWidth();
-            cb({
-                width: Number(width),
-                height: Number(height),
-            });
+            cb({ width: Number(width), height: Number(height) });
         }, 200);
         return on('resize', updateDimension, window);
     }
     var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT'];
     var lastInputValueMap = new WeakMap();
-    function initInputObserver(cb, blockClass, ignoreClass, maskInputOptions, maskInputFn, sampling) {
+    function initInputObserver(cb, blockClass, ignoreClass, maskInputOptions, sampling) {
         function eventHandler(event) {
             var target = event.target;
             if (!target ||
                 !target.tagName ||
                 INPUT_TAGS.indexOf(target.tagName) < 0 ||
-                isBlocked(target, blockClass)) {
+                isBlocked(target, blockClass))
                 return;
-            }
             var type = target.type;
             if (type === 'password' ||
-                target.classList.contains(ignoreClass)) {
+                target.classList.contains(ignoreClass))
                 return;
-            }
             var text = target.value;
             var isChecked = false;
             if (type === 'radio' || type === 'checkbox') {
                 isChecked = target.checked;
             }
-            else if (maskInputOptions[target.tagName.toLowerCase()] ||
-                maskInputOptions[type]) {
-                if (maskInputFn) {
-                    text = maskInputFn(text);
-                }
-                else {
-                    text = '*'.repeat(text.length);
-                }
+            else if (maskInputOptions[target.tagName.toLowerCase()] || maskInputOptions[type]) {
+                text = '*'.repeat(text.length);
             }
             cbWithDedup(target, { text: text, isChecked: isChecked });
             var name = target.name;
@@ -2317,16 +2111,13 @@ var rrweb = (function (exports) {
             [HTMLInputElement.prototype, 'checked'],
             [HTMLSelectElement.prototype, 'value'],
             [HTMLTextAreaElement.prototype, 'value'],
-            [HTMLSelectElement.prototype, 'selectedIndex'],
         ];
         if (propertyDescriptor && propertyDescriptor.set) {
-            handlers.push.apply(handlers, __spread(hookProperties.map(function (p) {
-                return hookSetter(p[0], p[1], {
-                    set: function () {
-                        eventHandler({ target: this });
-                    },
-                });
-            })));
+            handlers.push.apply(handlers, __spread(hookProperties.map(function (p) { return hookSetter(p[0], p[1], {
+                set: function () {
+                    eventHandler({ target: this });
+                },
+            }); })));
         }
         return function () {
             handlers.forEach(function (h) { return h(); });
@@ -2337,10 +2128,7 @@ var rrweb = (function (exports) {
         CSSStyleSheet.prototype.insertRule = function (rule, index) {
             var id = mirror.getId(this.ownerNode);
             if (id !== -1) {
-                cb({
-                    id: id,
-                    adds: [{ rule: rule, index: index }],
-                });
+                cb({ id: id, adds: [{ rule: rule, index: index }] });
             }
             return insertRule.apply(this, arguments);
         };
@@ -2348,10 +2136,7 @@ var rrweb = (function (exports) {
         CSSStyleSheet.prototype.deleteRule = function (index) {
             var id = mirror.getId(this.ownerNode);
             if (id !== -1) {
-                cb({
-                    id: id,
-                    removes: [{ index: index }],
-                });
+                cb({ id: id, removes: [{ index: index }] });
             }
             return deleteRule.apply(this, arguments);
         };
@@ -2363,9 +2148,8 @@ var rrweb = (function (exports) {
     function initMediaInteractionObserver(mediaInteractionCb, blockClass) {
         var handler = function (type) { return function (event) {
             var target = event.target;
-            if (!target || isBlocked(target, blockClass)) {
+            if (!target || isBlocked(target, blockClass))
                 return;
-            }
             mediaInteractionCb({
                 type: type === 'play' ? MediaInteractions.Play : MediaInteractions.Pause,
                 id: mirror.getId(target),
@@ -2376,121 +2160,15 @@ var rrweb = (function (exports) {
             handlers.forEach(function (h) { return h(); });
         };
     }
-    function initCanvasMutationObserver(cb, blockClass) {
-        var e_1, _a;
-        var props = Object.getOwnPropertyNames(CanvasRenderingContext2D.prototype);
-        var handlers = [];
-        var _loop_1 = function (prop) {
-            try {
-                if (typeof CanvasRenderingContext2D.prototype[prop] !== 'function') {
-                    return "continue";
-                }
-                var restoreHandler = patch(CanvasRenderingContext2D.prototype, prop, function (original) {
-                    return function () {
-                        var _this = this;
-                        var args = [];
-                        for (var _i = 0; _i < arguments.length; _i++) {
-                            args[_i] = arguments[_i];
-                        }
-                        if (!isBlocked(this.canvas, blockClass)) {
-                            setTimeout(function () {
-                                var recordArgs = __spread(args);
-                                if (prop === 'drawImage') {
-                                    if (recordArgs[0] &&
-                                        recordArgs[0] instanceof HTMLCanvasElement) {
-                                        recordArgs[0] = recordArgs[0].toDataURL();
-                                    }
-                                }
-                                cb({
-                                    id: mirror.getId(_this.canvas),
-                                    property: prop,
-                                    args: recordArgs,
-                                });
-                            }, 0);
-                        }
-                        return original.apply(this, args);
-                    };
-                });
-                handlers.push(restoreHandler);
-            }
-            catch (_a) {
-                var hookHandler = hookSetter(CanvasRenderingContext2D.prototype, prop, {
-                    set: function (v) {
-                        cb({
-                            id: mirror.getId(this.canvas),
-                            property: prop,
-                            args: [v],
-                            setter: true,
-                        });
-                    },
-                });
-                handlers.push(hookHandler);
-            }
-        };
-        try {
-            for (var props_1 = __values(props), props_1_1 = props_1.next(); !props_1_1.done; props_1_1 = props_1.next()) {
-                var prop = props_1_1.value;
-                _loop_1(prop);
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (props_1_1 && !props_1_1.done && (_a = props_1.return)) _a.call(props_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        return function () {
-            handlers.forEach(function (h) { return h(); });
-        };
-    }
-    function initFontObserver(cb) {
-        var handlers = [];
-        var fontMap = new WeakMap();
-        var originalFontFace = FontFace;
-        window.FontFace = function FontFace(family, source, descriptors) {
-            var fontFace = new originalFontFace(family, source, descriptors);
-            fontMap.set(fontFace, {
-                family: family,
-                buffer: typeof source !== 'string',
-                descriptors: descriptors,
-                fontSource: typeof source === 'string'
-                    ? source
-                    :
-                        JSON.stringify(Array.from(new Uint8Array(source))),
-            });
-            return fontFace;
-        };
-        var restoreHandler = patch(document.fonts, 'add', function (original) {
-            return function (fontFace) {
-                setTimeout(function () {
-                    var p = fontMap.get(fontFace);
-                    if (p) {
-                        cb(p);
-                        fontMap.delete(fontFace);
-                    }
-                }, 0);
-                return original.apply(this, [fontFace]);
-            };
-        });
-        handlers.push(function () {
-            window.FonFace = originalFontFace;
-        });
-        handlers.push(restoreHandler);
-        return function () {
-            handlers.forEach(function (h) { return h(); });
-        };
-    }
     function mergeHooks(o, hooks) {
-        var mutationCb = o.mutationCb, mousemoveCb = o.mousemoveCb, mouseInteractionCb = o.mouseInteractionCb, scrollCb = o.scrollCb, viewportResizeCb = o.viewportResizeCb, inputCb = o.inputCb, mediaInteractionCb = o.mediaInteractionCb, styleSheetRuleCb = o.styleSheetRuleCb, canvasMutationCb = o.canvasMutationCb, fontCb = o.fontCb;
+        var mutationCb = o.mutationCb, mousemoveCb = o.mousemoveCb, mouseInteractionCb = o.mouseInteractionCb, scrollCb = o.scrollCb, viewportResizeCb = o.viewportResizeCb, inputCb = o.inputCb, mediaInteractionCb = o.mediaInteractionCb, styleSheetRuleCb = o.styleSheetRuleCb;
         o.mutationCb = function () {
             var p = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.mutation) {
+            if (hooks.mutation)
                 hooks.mutation.apply(hooks, __spread(p));
-            }
             mutationCb.apply(void 0, __spread(p));
         };
         o.mousemoveCb = function () {
@@ -2498,9 +2176,8 @@ var rrweb = (function (exports) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.mousemove) {
+            if (hooks.mousemove)
                 hooks.mousemove.apply(hooks, __spread(p));
-            }
             mousemoveCb.apply(void 0, __spread(p));
         };
         o.mouseInteractionCb = function () {
@@ -2508,9 +2185,8 @@ var rrweb = (function (exports) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.mouseInteraction) {
+            if (hooks.mouseInteraction)
                 hooks.mouseInteraction.apply(hooks, __spread(p));
-            }
             mouseInteractionCb.apply(void 0, __spread(p));
         };
         o.scrollCb = function () {
@@ -2518,9 +2194,8 @@ var rrweb = (function (exports) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.scroll) {
+            if (hooks.scroll)
                 hooks.scroll.apply(hooks, __spread(p));
-            }
             scrollCb.apply(void 0, __spread(p));
         };
         o.viewportResizeCb = function () {
@@ -2528,9 +2203,8 @@ var rrweb = (function (exports) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.viewportResize) {
+            if (hooks.viewportResize)
                 hooks.viewportResize.apply(hooks, __spread(p));
-            }
             viewportResizeCb.apply(void 0, __spread(p));
         };
         o.inputCb = function () {
@@ -2538,9 +2212,8 @@ var rrweb = (function (exports) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.input) {
+            if (hooks.input)
                 hooks.input.apply(hooks, __spread(p));
-            }
             inputCb.apply(void 0, __spread(p));
         };
         o.mediaInteractionCb = function () {
@@ -2548,9 +2221,8 @@ var rrweb = (function (exports) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.mediaInteaction) {
+            if (hooks.mediaInteaction)
                 hooks.mediaInteaction.apply(hooks, __spread(p));
-            }
             mediaInteractionCb.apply(void 0, __spread(p));
         };
         o.styleSheetRuleCb = function () {
@@ -2558,47 +2230,22 @@ var rrweb = (function (exports) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 p[_i] = arguments[_i];
             }
-            if (hooks.styleSheetRule) {
+            if (hooks.styleSheetRule)
                 hooks.styleSheetRule.apply(hooks, __spread(p));
-            }
             styleSheetRuleCb.apply(void 0, __spread(p));
-        };
-        o.canvasMutationCb = function () {
-            var p = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                p[_i] = arguments[_i];
-            }
-            if (hooks.canvasMutation) {
-                hooks.canvasMutation.apply(hooks, __spread(p));
-            }
-            canvasMutationCb.apply(void 0, __spread(p));
-        };
-        o.fontCb = function () {
-            var p = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                p[_i] = arguments[_i];
-            }
-            if (hooks.font) {
-                hooks.font.apply(hooks, __spread(p));
-            }
-            fontCb.apply(void 0, __spread(p));
         };
     }
     function initObservers(o, hooks) {
         if (hooks === void 0) { hooks = {}; }
         mergeHooks(o, hooks);
-        var mutationObserver = initMutationObserver(o.mutationCb, o.blockClass, o.blockSelector, o.inlineStylesheet, o.maskInputOptions, o.recordCanvas, o.slimDOMOptions);
+        var mutationObserver = initMutationObserver(o.mutationCb, o.blockClass, o.inlineStylesheet, o.maskInputOptions);
         var mousemoveHandler = initMoveObserver(o.mousemoveCb, o.sampling);
         var mouseInteractionHandler = initMouseInteractionObserver(o.mouseInteractionCb, o.blockClass, o.sampling);
         var scrollHandler = initScrollObserver(o.scrollCb, o.blockClass, o.sampling);
         var viewportResizeHandler = initViewportResizeObserver(o.viewportResizeCb);
-        var inputHandler = initInputObserver(o.inputCb, o.blockClass, o.ignoreClass, o.maskInputOptions, o.maskInputFn, o.sampling);
+        var inputHandler = initInputObserver(o.inputCb, o.blockClass, o.ignoreClass, o.maskInputOptions, o.sampling);
         var mediaInteractionHandler = initMediaInteractionObserver(o.mediaInteractionCb, o.blockClass);
         var styleSheetObserver = initStyleSheetObserver(o.styleSheetRuleCb);
-        var canvasMutationObserver = o.recordCanvas
-            ? initCanvasMutationObserver(o.canvasMutationCb, o.blockClass)
-            : function () { };
-        var fontObserver = o.collectFonts ? initFontObserver(o.fontCb) : function () { };
         return function () {
             mutationObserver.disconnect();
             mousemoveHandler();
@@ -2608,8 +2255,6 @@ var rrweb = (function (exports) {
             inputHandler();
             mediaInteractionHandler();
             styleSheetObserver();
-            canvasMutationObserver();
-            fontObserver();
         };
     }
 
@@ -2619,7 +2264,7 @@ var rrweb = (function (exports) {
     var wrappedEmit;
     function record(options) {
         if (options === void 0) { options = {}; }
-        var emit = options.emit, checkoutEveryNms = options.checkoutEveryNms, checkoutEveryNth = options.checkoutEveryNth, _a = options.blockClass, blockClass = _a === void 0 ? 'rr-block' : _a, _b = options.blockSelector, blockSelector = _b === void 0 ? null : _b, _c = options.ignoreClass, ignoreClass = _c === void 0 ? 'rr-ignore' : _c, _d = options.inlineStylesheet, inlineStylesheet = _d === void 0 ? true : _d, maskAllInputs = options.maskAllInputs, _maskInputOptions = options.maskInputOptions, _slimDOMOptions = options.slimDOMOptions, maskInputFn = options.maskInputFn, hooks = options.hooks, packFn = options.packFn, _e = options.sampling, sampling = _e === void 0 ? {} : _e, mousemoveWait = options.mousemoveWait, _f = options.recordCanvas, recordCanvas = _f === void 0 ? false : _f, _g = options.collectFonts, collectFonts = _g === void 0 ? false : _g;
+        var emit = options.emit, checkoutEveryNms = options.checkoutEveryNms, checkoutEveryNth = options.checkoutEveryNth, _a = options.blockClass, blockClass = _a === void 0 ? 'rr-block' : _a, _b = options.ignoreClass, ignoreClass = _b === void 0 ? 'rr-ignore' : _b, _c = options.inlineStylesheet, inlineStylesheet = _c === void 0 ? true : _c, maskAllInputs = options.maskAllInputs, _maskInputOptions = options.maskInputOptions, hooks = options.hooks, packFn = options.packFn, _d = options.sampling, sampling = _d === void 0 ? {} : _d, mousemoveWait = options.mousemoveWait;
         if (!emit) {
             throw new Error('emit function is required');
         }
@@ -2647,33 +2292,10 @@ var rrweb = (function (exports) {
             : _maskInputOptions !== undefined
                 ? _maskInputOptions
                 : {};
-        var slimDOMOptions = _slimDOMOptions === true || _slimDOMOptions === 'all'
-            ? {
-                script: true,
-                comment: true,
-                headFavicon: true,
-                headWhitespace: true,
-                headMetaSocial: true,
-                headMetaRobots: true,
-                headMetaHttpEquiv: true,
-                headMetaVerification: true,
-                headMetaAuthorship: _slimDOMOptions === 'all',
-                headMetaDescKeywords: _slimDOMOptions === 'all',
-            }
-            : _slimDOMOptions
-                ? _slimDOMOptions
-                : {};
         polyfill();
         var lastFullSnapshotEvent;
         var incrementalSnapshotCount = 0;
         wrappedEmit = function (e, isCheckout) {
-            if (mutationBuffer.isFrozen() &&
-                e.type !== exports.EventType.FullSnapshot &&
-                !(e.type === exports.EventType.IncrementalSnapshot &&
-                    e.data.source === exports.IncrementalSource.Mutation)) {
-                mutationBuffer.emit();
-                mutationBuffer.unfreeze();
-            }
             emit((packFn ? packFn(e) : e), isCheckout);
             if (e.type === exports.EventType.FullSnapshot) {
                 lastFullSnapshotEvent = e;
@@ -2700,16 +2322,7 @@ var rrweb = (function (exports) {
                     height: getWindowHeight(),
                 },
             }), isCheckout);
-            var wasFrozen = mutationBuffer.isFrozen();
-            mutationBuffer.freeze();
-            var _e = __read(snapshot(document, {
-                blockClass: blockClass,
-                blockSelector: blockSelector,
-                inlineStylesheet: inlineStylesheet,
-                maskAllInputs: maskInputOptions,
-                slimDOM: slimDOMOptions,
-                recordCanvas: recordCanvas,
-            }), 2), node = _e[0], idNodeMap = _e[1];
+            var _e = __read(snapshot(document, blockClass, inlineStylesheet, maskInputOptions), 2), node = _e[0], idNodeMap = _e[1];
             if (!node) {
                 return console.warn('Failed to snapshot the document');
             }
@@ -2730,10 +2343,6 @@ var rrweb = (function (exports) {
                     },
                 },
             }));
-            if (!wasFrozen) {
-                mutationBuffer.emit();
-                mutationBuffer.unfreeze();
-            }
         }
         try {
             var handlers_1 = [];
@@ -2797,28 +2406,11 @@ var rrweb = (function (exports) {
                             data: __assign({ source: exports.IncrementalSource.StyleSheetRule }, r),
                         }));
                     },
-                    canvasMutationCb: function (p) {
-                        return wrappedEmit(wrapEvent({
-                            type: exports.EventType.IncrementalSnapshot,
-                            data: __assign({ source: exports.IncrementalSource.CanvasMutation }, p),
-                        }));
-                    },
-                    fontCb: function (p) {
-                        return wrappedEmit(wrapEvent({
-                            type: exports.EventType.IncrementalSnapshot,
-                            data: __assign({ source: exports.IncrementalSource.Font }, p),
-                        }));
-                    },
                     blockClass: blockClass,
-                    blockSelector: blockSelector,
                     ignoreClass: ignoreClass,
                     maskInputOptions: maskInputOptions,
-                    maskInputFn: maskInputFn,
                     inlineStylesheet: inlineStylesheet,
                     sampling: sampling,
-                    recordCanvas: recordCanvas,
-                    collectFonts: collectFonts,
-                    slimDOMOptions: slimDOMOptions,
                 }, hooks));
             };
             if (document.readyState === 'interactive' ||
@@ -2853,9 +2445,6 @@ var rrweb = (function (exports) {
                 payload: payload,
             },
         }));
-    };
-    record.freezePage = function () {
-        mutationBuffer.freeze();
     };
 
     //      
@@ -2925,233 +2514,449 @@ var rrweb = (function (exports) {
         'default': mitt
     });
 
-    function polyfill$1(w, d) {
-        if (w === void 0) { w = window; }
-        if (d === void 0) { d = document; }
-        if ('scrollBehavior' in d.documentElement.style &&
-            w.__forceSmoothScrollPolyfill__ !== true) {
-            return;
-        }
-        var Element = w.HTMLElement || w.Element;
-        var SCROLL_TIME = 468;
-        var original = {
-            scroll: w.scroll || w.scrollTo,
-            scrollBy: w.scrollBy,
-            elementScroll: Element.prototype.scroll || scrollElement,
-            scrollIntoView: Element.prototype.scrollIntoView,
-        };
-        var now = w.performance && w.performance.now
-            ? w.performance.now.bind(w.performance)
-            : Date.now;
-        function isMicrosoftBrowser(userAgent) {
-            var userAgentPatterns = ['MSIE ', 'Trident/', 'Edge/'];
-            return new RegExp(userAgentPatterns.join('|')).test(userAgent);
-        }
-        var ROUNDING_TOLERANCE = isMicrosoftBrowser(w.navigator.userAgent) ? 1 : 0;
-        function scrollElement(x, y) {
-            this.scrollLeft = x;
-            this.scrollTop = y;
-        }
-        function ease(k) {
-            return 0.5 * (1 - Math.cos(Math.PI * k));
-        }
-        function shouldBailOut(firstArg) {
-            if (firstArg === null ||
-                typeof firstArg !== 'object' ||
-                firstArg.behavior === undefined ||
-                firstArg.behavior === 'auto' ||
-                firstArg.behavior === 'instant') {
-                return true;
-            }
-            if (typeof firstArg === 'object' && firstArg.behavior === 'smooth') {
-                return false;
-            }
-            throw new TypeError('behavior member of ScrollOptions ' +
-                firstArg.behavior +
-                ' is not a valid value for enumeration ScrollBehavior.');
-        }
-        function hasScrollableSpace(el, axis) {
-            if (axis === 'Y') {
-                return el.clientHeight + ROUNDING_TOLERANCE < el.scrollHeight;
-            }
-            if (axis === 'X') {
-                return el.clientWidth + ROUNDING_TOLERANCE < el.scrollWidth;
-            }
-        }
-        function canOverflow(el, axis) {
-            var overflowValue = w.getComputedStyle(el, null)['overflow' + axis];
-            return overflowValue === 'auto' || overflowValue === 'scroll';
-        }
-        function isScrollable(el) {
-            var isScrollableY = hasScrollableSpace(el, 'Y') && canOverflow(el, 'Y');
-            var isScrollableX = hasScrollableSpace(el, 'X') && canOverflow(el, 'X');
-            return isScrollableY || isScrollableX;
-        }
-        function findScrollableParent(el) {
-            while (el !== d.body && isScrollable(el) === false) {
-                el = el.parentNode || el.host;
-            }
-            return el;
-        }
-        function step(context) {
-            var time = now();
-            var value;
-            var currentX;
-            var currentY;
-            var elapsed = (time - context.startTime) / SCROLL_TIME;
-            elapsed = elapsed > 1 ? 1 : elapsed;
-            value = ease(elapsed);
-            currentX = context.startX + (context.x - context.startX) * value;
-            currentY = context.startY + (context.y - context.startY) * value;
-            context.method.call(context.scrollable, currentX, currentY);
-            if (currentX !== context.x || currentY !== context.y) {
-                w.requestAnimationFrame(step.bind(w, context));
-            }
-        }
-        function smoothScroll(el, x, y) {
-            var scrollable;
-            var startX;
-            var startY;
-            var method;
-            var startTime = now();
-            if (el === d.body) {
-                scrollable = w;
-                startX = w.scrollX || w.pageXOffset;
-                startY = w.scrollY || w.pageYOffset;
-                method = original.scroll;
-            }
-            else {
-                scrollable = el;
-                startX = el.scrollLeft;
-                startY = el.scrollTop;
-                method = scrollElement;
-            }
-            step({
-                scrollable: scrollable,
-                method: method,
-                startTime: startTime,
-                startX: startX,
-                startY: startY,
-                x: x,
-                y: y,
-            });
-        }
-        w.scroll = w.scrollTo = function () {
-            if (arguments[0] === undefined) {
-                return;
-            }
-            if (shouldBailOut(arguments[0]) === true) {
-                original.scroll.call(w, arguments[0].left !== undefined
-                    ? arguments[0].left
-                    : typeof arguments[0] !== 'object'
-                        ? arguments[0]
-                        : w.scrollX || w.pageXOffset, arguments[0].top !== undefined
-                    ? arguments[0].top
-                    : arguments[1] !== undefined
-                        ? arguments[1]
-                        : w.scrollY || w.pageYOffset);
-                return;
-            }
-            smoothScroll.call(w, d.body, arguments[0].left !== undefined
-                ? ~~arguments[0].left
-                : w.scrollX || w.pageXOffset, arguments[0].top !== undefined
-                ? ~~arguments[0].top
-                : w.scrollY || w.pageYOffset);
-        };
-        w.scrollBy = function () {
-            if (arguments[0] === undefined) {
-                return;
-            }
-            if (shouldBailOut(arguments[0])) {
-                original.scrollBy.call(w, arguments[0].left !== undefined
-                    ? arguments[0].left
-                    : typeof arguments[0] !== 'object'
-                        ? arguments[0]
-                        : 0, arguments[0].top !== undefined
-                    ? arguments[0].top
-                    : arguments[1] !== undefined
-                        ? arguments[1]
-                        : 0);
-                return;
-            }
-            smoothScroll.call(w, d.body, ~~arguments[0].left + (w.scrollX || w.pageXOffset), ~~arguments[0].top + (w.scrollY || w.pageYOffset));
-        };
-        Element.prototype.scroll = Element.prototype.scrollTo = function () {
-            if (arguments[0] === undefined) {
-                return;
-            }
-            if (shouldBailOut(arguments[0]) === true) {
-                if (typeof arguments[0] === 'number' && arguments[1] === undefined) {
-                    throw new SyntaxError('Value could not be converted');
-                }
-                original.elementScroll.call(this, arguments[0].left !== undefined
-                    ? ~~arguments[0].left
-                    : typeof arguments[0] !== 'object'
-                        ? ~~arguments[0]
-                        : this.scrollLeft, arguments[0].top !== undefined
-                    ? ~~arguments[0].top
-                    : arguments[1] !== undefined
-                        ? ~~arguments[1]
-                        : this.scrollTop);
-                return;
-            }
-            var left = arguments[0].left;
-            var top = arguments[0].top;
-            smoothScroll.call(this, this, typeof left === 'undefined' ? this.scrollLeft : ~~left, typeof top === 'undefined' ? this.scrollTop : ~~top);
-        };
-        Element.prototype.scrollBy = function () {
-            if (arguments[0] === undefined) {
-                return;
-            }
-            if (shouldBailOut(arguments[0]) === true) {
-                original.elementScroll.call(this, arguments[0].left !== undefined
-                    ? ~~arguments[0].left + this.scrollLeft
-                    : ~~arguments[0] + this.scrollLeft, arguments[0].top !== undefined
-                    ? ~~arguments[0].top + this.scrollTop
-                    : ~~arguments[1] + this.scrollTop);
-                return;
-            }
-            this.scroll({
-                left: ~~arguments[0].left + this.scrollLeft,
-                top: ~~arguments[0].top + this.scrollTop,
-                behavior: arguments[0].behavior,
-            });
-        };
-        Element.prototype.scrollIntoView = function () {
-            if (shouldBailOut(arguments[0]) === true) {
-                original.scrollIntoView.call(this, arguments[0] === undefined ? true : arguments[0]);
-                return;
-            }
-            var scrollableParent = findScrollableParent(this);
-            var parentRects = scrollableParent.getBoundingClientRect();
-            var clientRects = this.getBoundingClientRect();
-            if (scrollableParent !== d.body) {
-                smoothScroll.call(this, scrollableParent, scrollableParent.scrollLeft + clientRects.left - parentRects.left, scrollableParent.scrollTop + clientRects.top - parentRects.top);
-                if (w.getComputedStyle(scrollableParent).position !== 'fixed') {
-                    w.scrollBy({
-                        left: parentRects.left,
-                        top: parentRects.top,
-                        behavior: 'smooth',
-                    });
-                }
-            }
-            else {
-                w.scrollBy({
-                    left: clientRects.left,
-                    top: clientRects.top,
-                    behavior: 'smooth',
-                });
-            }
-        };
+    function createCommonjsModule(fn, module) {
+    	return module = { exports: {} }, fn(module, module.exports), module.exports;
     }
 
+    var smoothscroll = createCommonjsModule(function (module, exports) {
+    /* smoothscroll v0.4.4 - 2019 - Dustan Kasten, Jeremias Menichelli - MIT License */
+    (function () {
+
+      // polyfill
+      function polyfill() {
+        // aliases
+        var w = window;
+        var d = document;
+
+        // return if scroll behavior is supported and polyfill is not forced
+        if (
+          'scrollBehavior' in d.documentElement.style &&
+          w.__forceSmoothScrollPolyfill__ !== true
+        ) {
+          return;
+        }
+
+        // globals
+        var Element = w.HTMLElement || w.Element;
+        var SCROLL_TIME = 468;
+
+        // object gathering original scroll methods
+        var original = {
+          scroll: w.scroll || w.scrollTo,
+          scrollBy: w.scrollBy,
+          elementScroll: Element.prototype.scroll || scrollElement,
+          scrollIntoView: Element.prototype.scrollIntoView
+        };
+
+        // define timing method
+        var now =
+          w.performance && w.performance.now
+            ? w.performance.now.bind(w.performance)
+            : Date.now;
+
+        /**
+         * indicates if a the current browser is made by Microsoft
+         * @method isMicrosoftBrowser
+         * @param {String} userAgent
+         * @returns {Boolean}
+         */
+        function isMicrosoftBrowser(userAgent) {
+          var userAgentPatterns = ['MSIE ', 'Trident/', 'Edge/'];
+
+          return new RegExp(userAgentPatterns.join('|')).test(userAgent);
+        }
+
+        /*
+         * IE has rounding bug rounding down clientHeight and clientWidth and
+         * rounding up scrollHeight and scrollWidth causing false positives
+         * on hasScrollableSpace
+         */
+        var ROUNDING_TOLERANCE = isMicrosoftBrowser(w.navigator.userAgent) ? 1 : 0;
+
+        /**
+         * changes scroll position inside an element
+         * @method scrollElement
+         * @param {Number} x
+         * @param {Number} y
+         * @returns {undefined}
+         */
+        function scrollElement(x, y) {
+          this.scrollLeft = x;
+          this.scrollTop = y;
+        }
+
+        /**
+         * returns result of applying ease math function to a number
+         * @method ease
+         * @param {Number} k
+         * @returns {Number}
+         */
+        function ease(k) {
+          return 0.5 * (1 - Math.cos(Math.PI * k));
+        }
+
+        /**
+         * indicates if a smooth behavior should be applied
+         * @method shouldBailOut
+         * @param {Number|Object} firstArg
+         * @returns {Boolean}
+         */
+        function shouldBailOut(firstArg) {
+          if (
+            firstArg === null ||
+            typeof firstArg !== 'object' ||
+            firstArg.behavior === undefined ||
+            firstArg.behavior === 'auto' ||
+            firstArg.behavior === 'instant'
+          ) {
+            // first argument is not an object/null
+            // or behavior is auto, instant or undefined
+            return true;
+          }
+
+          if (typeof firstArg === 'object' && firstArg.behavior === 'smooth') {
+            // first argument is an object and behavior is smooth
+            return false;
+          }
+
+          // throw error when behavior is not supported
+          throw new TypeError(
+            'behavior member of ScrollOptions ' +
+              firstArg.behavior +
+              ' is not a valid value for enumeration ScrollBehavior.'
+          );
+        }
+
+        /**
+         * indicates if an element has scrollable space in the provided axis
+         * @method hasScrollableSpace
+         * @param {Node} el
+         * @param {String} axis
+         * @returns {Boolean}
+         */
+        function hasScrollableSpace(el, axis) {
+          if (axis === 'Y') {
+            return el.clientHeight + ROUNDING_TOLERANCE < el.scrollHeight;
+          }
+
+          if (axis === 'X') {
+            return el.clientWidth + ROUNDING_TOLERANCE < el.scrollWidth;
+          }
+        }
+
+        /**
+         * indicates if an element has a scrollable overflow property in the axis
+         * @method canOverflow
+         * @param {Node} el
+         * @param {String} axis
+         * @returns {Boolean}
+         */
+        function canOverflow(el, axis) {
+          var overflowValue = w.getComputedStyle(el, null)['overflow' + axis];
+
+          return overflowValue === 'auto' || overflowValue === 'scroll';
+        }
+
+        /**
+         * indicates if an element can be scrolled in either axis
+         * @method isScrollable
+         * @param {Node} el
+         * @param {String} axis
+         * @returns {Boolean}
+         */
+        function isScrollable(el) {
+          var isScrollableY = hasScrollableSpace(el, 'Y') && canOverflow(el, 'Y');
+          var isScrollableX = hasScrollableSpace(el, 'X') && canOverflow(el, 'X');
+
+          return isScrollableY || isScrollableX;
+        }
+
+        /**
+         * finds scrollable parent of an element
+         * @method findScrollableParent
+         * @param {Node} el
+         * @returns {Node} el
+         */
+        function findScrollableParent(el) {
+          while (el !== d.body && isScrollable(el) === false) {
+            el = el.parentNode || el.host;
+          }
+
+          return el;
+        }
+
+        /**
+         * self invoked function that, given a context, steps through scrolling
+         * @method step
+         * @param {Object} context
+         * @returns {undefined}
+         */
+        function step(context) {
+          var time = now();
+          var value;
+          var currentX;
+          var currentY;
+          var elapsed = (time - context.startTime) / SCROLL_TIME;
+
+          // avoid elapsed times higher than one
+          elapsed = elapsed > 1 ? 1 : elapsed;
+
+          // apply easing to elapsed time
+          value = ease(elapsed);
+
+          currentX = context.startX + (context.x - context.startX) * value;
+          currentY = context.startY + (context.y - context.startY) * value;
+
+          context.method.call(context.scrollable, currentX, currentY);
+
+          // scroll more if we have not reached our destination
+          if (currentX !== context.x || currentY !== context.y) {
+            w.requestAnimationFrame(step.bind(w, context));
+          }
+        }
+
+        /**
+         * scrolls window or element with a smooth behavior
+         * @method smoothScroll
+         * @param {Object|Node} el
+         * @param {Number} x
+         * @param {Number} y
+         * @returns {undefined}
+         */
+        function smoothScroll(el, x, y) {
+          var scrollable;
+          var startX;
+          var startY;
+          var method;
+          var startTime = now();
+
+          // define scroll context
+          if (el === d.body) {
+            scrollable = w;
+            startX = w.scrollX || w.pageXOffset;
+            startY = w.scrollY || w.pageYOffset;
+            method = original.scroll;
+          } else {
+            scrollable = el;
+            startX = el.scrollLeft;
+            startY = el.scrollTop;
+            method = scrollElement;
+          }
+
+          // scroll looping over a frame
+          step({
+            scrollable: scrollable,
+            method: method,
+            startTime: startTime,
+            startX: startX,
+            startY: startY,
+            x: x,
+            y: y
+          });
+        }
+
+        // ORIGINAL METHODS OVERRIDES
+        // w.scroll and w.scrollTo
+        w.scroll = w.scrollTo = function() {
+          // avoid action when no arguments are passed
+          if (arguments[0] === undefined) {
+            return;
+          }
+
+          // avoid smooth behavior if not required
+          if (shouldBailOut(arguments[0]) === true) {
+            original.scroll.call(
+              w,
+              arguments[0].left !== undefined
+                ? arguments[0].left
+                : typeof arguments[0] !== 'object'
+                  ? arguments[0]
+                  : w.scrollX || w.pageXOffset,
+              // use top prop, second argument if present or fallback to scrollY
+              arguments[0].top !== undefined
+                ? arguments[0].top
+                : arguments[1] !== undefined
+                  ? arguments[1]
+                  : w.scrollY || w.pageYOffset
+            );
+
+            return;
+          }
+
+          // LET THE SMOOTHNESS BEGIN!
+          smoothScroll.call(
+            w,
+            d.body,
+            arguments[0].left !== undefined
+              ? ~~arguments[0].left
+              : w.scrollX || w.pageXOffset,
+            arguments[0].top !== undefined
+              ? ~~arguments[0].top
+              : w.scrollY || w.pageYOffset
+          );
+        };
+
+        // w.scrollBy
+        w.scrollBy = function() {
+          // avoid action when no arguments are passed
+          if (arguments[0] === undefined) {
+            return;
+          }
+
+          // avoid smooth behavior if not required
+          if (shouldBailOut(arguments[0])) {
+            original.scrollBy.call(
+              w,
+              arguments[0].left !== undefined
+                ? arguments[0].left
+                : typeof arguments[0] !== 'object' ? arguments[0] : 0,
+              arguments[0].top !== undefined
+                ? arguments[0].top
+                : arguments[1] !== undefined ? arguments[1] : 0
+            );
+
+            return;
+          }
+
+          // LET THE SMOOTHNESS BEGIN!
+          smoothScroll.call(
+            w,
+            d.body,
+            ~~arguments[0].left + (w.scrollX || w.pageXOffset),
+            ~~arguments[0].top + (w.scrollY || w.pageYOffset)
+          );
+        };
+
+        // Element.prototype.scroll and Element.prototype.scrollTo
+        Element.prototype.scroll = Element.prototype.scrollTo = function() {
+          // avoid action when no arguments are passed
+          if (arguments[0] === undefined) {
+            return;
+          }
+
+          // avoid smooth behavior if not required
+          if (shouldBailOut(arguments[0]) === true) {
+            // if one number is passed, throw error to match Firefox implementation
+            if (typeof arguments[0] === 'number' && arguments[1] === undefined) {
+              throw new SyntaxError('Value could not be converted');
+            }
+
+            original.elementScroll.call(
+              this,
+              // use left prop, first number argument or fallback to scrollLeft
+              arguments[0].left !== undefined
+                ? ~~arguments[0].left
+                : typeof arguments[0] !== 'object' ? ~~arguments[0] : this.scrollLeft,
+              // use top prop, second argument or fallback to scrollTop
+              arguments[0].top !== undefined
+                ? ~~arguments[0].top
+                : arguments[1] !== undefined ? ~~arguments[1] : this.scrollTop
+            );
+
+            return;
+          }
+
+          var left = arguments[0].left;
+          var top = arguments[0].top;
+
+          // LET THE SMOOTHNESS BEGIN!
+          smoothScroll.call(
+            this,
+            this,
+            typeof left === 'undefined' ? this.scrollLeft : ~~left,
+            typeof top === 'undefined' ? this.scrollTop : ~~top
+          );
+        };
+
+        // Element.prototype.scrollBy
+        Element.prototype.scrollBy = function() {
+          // avoid action when no arguments are passed
+          if (arguments[0] === undefined) {
+            return;
+          }
+
+          // avoid smooth behavior if not required
+          if (shouldBailOut(arguments[0]) === true) {
+            original.elementScroll.call(
+              this,
+              arguments[0].left !== undefined
+                ? ~~arguments[0].left + this.scrollLeft
+                : ~~arguments[0] + this.scrollLeft,
+              arguments[0].top !== undefined
+                ? ~~arguments[0].top + this.scrollTop
+                : ~~arguments[1] + this.scrollTop
+            );
+
+            return;
+          }
+
+          this.scroll({
+            left: ~~arguments[0].left + this.scrollLeft,
+            top: ~~arguments[0].top + this.scrollTop,
+            behavior: arguments[0].behavior
+          });
+        };
+
+        // Element.prototype.scrollIntoView
+        Element.prototype.scrollIntoView = function() {
+          // avoid smooth behavior if not required
+          if (shouldBailOut(arguments[0]) === true) {
+            original.scrollIntoView.call(
+              this,
+              arguments[0] === undefined ? true : arguments[0]
+            );
+
+            return;
+          }
+
+          // LET THE SMOOTHNESS BEGIN!
+          var scrollableParent = findScrollableParent(this);
+          var parentRects = scrollableParent.getBoundingClientRect();
+          var clientRects = this.getBoundingClientRect();
+
+          if (scrollableParent !== d.body) {
+            // reveal element inside parent
+            smoothScroll.call(
+              this,
+              scrollableParent,
+              scrollableParent.scrollLeft + clientRects.left - parentRects.left,
+              scrollableParent.scrollTop + clientRects.top - parentRects.top
+            );
+
+            // reveal parent in viewport unless is fixed
+            if (w.getComputedStyle(scrollableParent).position !== 'fixed') {
+              w.scrollBy({
+                left: parentRects.left,
+                top: parentRects.top,
+                behavior: 'smooth'
+              });
+            }
+          } else {
+            // reveal element in viewport
+            w.scrollBy({
+              left: clientRects.left,
+              top: clientRects.top,
+              behavior: 'smooth'
+            });
+          }
+        };
+      }
+
+      {
+        // commonjs
+        module.exports = { polyfill: polyfill };
+      }
+
+    }());
+    });
+    var smoothscroll_1 = smoothscroll.polyfill;
+
     var Timer = (function () {
-        function Timer(actions, speed) {
+        function Timer(config, actions) {
             if (actions === void 0) { actions = []; }
             this.timeOffset = 0;
-            this.raf = null;
             this.actions = actions;
-            this.speed = speed;
+            this.config = config;
         }
         Timer.prototype.addAction = function (action) {
             var index = this.findActionIndex(action);
@@ -3165,10 +2970,10 @@ var rrweb = (function (exports) {
             this.actions.sort(function (a1, a2) { return a1.delay - a2.delay; });
             this.timeOffset = 0;
             var lastTimestamp = performance.now();
-            var actions = this.actions;
+            var _a = this, actions = _a.actions, config = _a.config;
             var self = this;
             function check(time) {
-                self.timeOffset += (time - lastTimestamp) * self.speed;
+                self.timeOffset += (time - lastTimestamp) * config.speed;
                 lastTimestamp = time;
                 while (actions.length) {
                     var action = actions[0];
@@ -3180,7 +2985,7 @@ var rrweb = (function (exports) {
                         break;
                     }
                 }
-                if (actions.length > 0 || self.liveMode) {
+                if (actions.length > 0 || self.config.liveMode) {
                     self.raf = requestAnimationFrame(check);
                 }
             }
@@ -3189,18 +2994,8 @@ var rrweb = (function (exports) {
         Timer.prototype.clear = function () {
             if (this.raf) {
                 cancelAnimationFrame(this.raf);
-                this.raf = null;
             }
             this.actions.length = 0;
-        };
-        Timer.prototype.setSpeed = function (speed) {
-            this.speed = speed;
-        };
-        Timer.prototype.toggleLiveMode = function (mode) {
-            this.liveMode = mode;
-        };
-        Timer.prototype.isActive = function () {
-            return this.raf !== null;
         };
         Timer.prototype.findActionIndex = function (action) {
             var start = 0;
@@ -3221,7 +3016,7 @@ var rrweb = (function (exports) {
         };
         return Timer;
     }());
-    function addDelay(event, baselineTime) {
+    function getDelay(event, baselineTime) {
         if (event.type === exports.EventType.IncrementalSnapshot &&
             event.data.source === exports.IncrementalSource.MouseMove) {
             var firstOffset = event.data.positions[0].timeOffset;
@@ -3230,7 +3025,7 @@ var rrweb = (function (exports) {
             return firstTimestamp - baselineTime;
         }
         event.delay = event.timestamp - baselineTime;
-        return event.delay;
+        return event.timestamp - baselineTime;
     }
 
     /*! *****************************************************************************
@@ -3247,7 +3042,7 @@ var rrweb = (function (exports) {
     See the Apache Version 2.0 License for specific language governing permissions
     and limitations under the License.
     ***************************************************************************** */
-    var t;!function(t){t[t.NotStarted=0]="NotStarted",t[t.Running=1]="Running",t[t.Stopped=2]="Stopped";}(t||(t={}));var n={type:"xstate.init"};function e(t){return void 0===t?[]:[].concat(t)}function r(t){return {type:"xstate.assign",assignment:t}}function i(t,n){return "string"==typeof(t="string"==typeof t&&n&&n[t]?n[t]:t)?{type:t}:"function"==typeof t?{type:t.name,exec:t}:t}function o(t){return function(n){return t===n}}function a(t){return "string"==typeof t?{type:t}:t}function u(t,n){return {value:t,context:n,actions:[],changed:!1,matches:o(t)}}function c(t,n){void 0===n&&(n={});var r={config:t,_options:n,initialState:{value:t.initial,actions:e(t.states[t.initial].entry).map((function(t){return i(t,n.actions)})),context:t.context,matches:o(t.initial)},transition:function(n,c){var s,f,v="string"==typeof n?{value:n,context:t.context}:n,l=v.value,p=v.context,g=a(c),y=t.states[l];if(y.on){var d=e(y.on[g.type]),x=function(n){if(void 0===n)return {value:u(l,p)};var e="string"==typeof n?{target:n}:n,a=e.target,c=void 0===a?l:a,s=e.actions,f=void 0===s?[]:s,v=e.cond,d=p;if((void 0===v?function(){return !0}:v)(p,g)){var x=t.states[c],m=!1,h=[].concat(y.exit,f,x.entry).filter((function(t){return t})).map((function(t){return i(t,r._options.actions)})).filter((function(t){if("xstate.assign"===t.type){m=!0;var n=Object.assign({},d);return "function"==typeof t.assignment?n=t.assignment(d,g):Object.keys(t.assignment).forEach((function(e){n[e]="function"==typeof t.assignment[e]?t.assignment[e](d,g):t.assignment[e];})),d=n,!1}return !0}));return {value:{value:c,context:d,actions:h,changed:c!==l||h.length>0||m,matches:o(c)}}}};try{for(var m=function(t){var n="function"==typeof Symbol&&t[Symbol.iterator],e=0;return n?n.call(t):{next:function(){return t&&e>=t.length&&(t=void 0),{value:t&&t[e++],done:!t}}}}(d),h=m.next();!h.done;h=m.next()){var S=x(h.value);if("object"==typeof S)return S.value}}catch(t){s={error:t};}finally{try{h&&!h.done&&(f=m.return)&&f.call(m);}finally{if(s)throw s.error}}}return u(l,p)}};return r}var s=function(t,n){return t.actions.forEach((function(e){var r=e.exec;return r&&r(t.context,n)}))};function f(e){var r=e.initialState,i=t.NotStarted,u=new Set,c={_machine:e,send:function(n){i===t.Running&&(r=e.transition(r,n),s(r,a(n)),u.forEach((function(t){return t(r)})));},subscribe:function(t){return u.add(t),t(r),{unsubscribe:function(){return u.delete(t)}}},start:function(a){if(a){var u="object"==typeof a?a:{context:e.config.context,value:a};r={value:u.value,actions:[],context:u.context,matches:o(u.value)};}return i=t.Running,s(r,n),c},stop:function(){return i=t.Stopped,u.clear(),c},get state(){return r},get status(){return i}};return c}
+    var t;!function(t){t[t.NotStarted=0]="NotStarted",t[t.Running=1]="Running",t[t.Stopped=2]="Stopped";}(t||(t={}));var n={type:"xstate.init"};function e(t){return void 0===t?[]:[].concat(t)}function r(t){return {type:"xstate.assign",assignment:t}}function i(t,n){return "string"==typeof(t="string"==typeof t&&n&&n[t]?n[t]:t)?{type:t}:"function"==typeof t?{type:t.name,exec:t}:t}function o(t){return function(n){return t===n}}function a(t){return "string"==typeof t?{type:t}:t}function u(t,n){return {value:t,context:n,actions:[],changed:!1,matches:o(t)}}function c(t,n){void 0===n&&(n={});var r={config:t,_options:n,initialState:{value:t.initial,actions:e(t.states[t.initial].entry).map((function(t){return i(t,n.actions)})),context:t.context,matches:o(t.initial)},transition:function(n,c){var s,f,l="string"==typeof n?{value:n,context:t.context}:n,v=l.value,p=l.context,g=a(c),y=t.states[v];if(y.on){var d=e(y.on[g.type]),x=function(n){if(void 0===n)return {value:u(v,p)};var e="string"==typeof n?{target:n}:n,a=e.target,c=void 0===a?v:a,s=e.actions,f=void 0===s?[]:s,l=e.cond,d=p;if((void 0===l?function(){return !0}:l)(p,g)){var x=t.states[c],m=!1,h=[].concat(y.exit,f,x.entry).filter((function(t){return t})).map((function(t){return i(t,r._options.actions)})).filter((function(t){if("xstate.assign"===t.type){m=!0;var n=Object.assign({},d);return "function"==typeof t.assignment?n=t.assignment(d,g):Object.keys(t.assignment).forEach((function(e){n[e]="function"==typeof t.assignment[e]?t.assignment[e](d,g):t.assignment[e];})),d=n,!1}return !0}));return {value:{value:c,context:d,actions:h,changed:c!==v||h.length>0||m,matches:o(c)}}}};try{for(var m=function(t){var n="function"==typeof Symbol&&t[Symbol.iterator],e=0;return n?n.call(t):{next:function(){return t&&e>=t.length&&(t=void 0),{value:t&&t[e++],done:!t}}}}(d),h=m.next();!h.done;h=m.next()){var S=x(h.value);if("object"==typeof S)return S.value}}catch(t){s={error:t};}finally{try{h&&!h.done&&(f=m.return)&&f.call(m);}finally{if(s)throw s.error}}}return u(v,p)}};return r}var s=function(t,n){return t.actions.forEach((function(e){var r=e.exec;return r&&r(t.context,n)}))};function f(e){var r=e.initialState,i=t.NotStarted,o=new Set,u={_machine:e,send:function(n){i===t.Running&&(r=e.transition(r,n),s(r,a(n)),o.forEach((function(t){return t(r)})));},subscribe:function(t){return o.add(t),t(r),{unsubscribe:function(){return o.delete(t)}}},start:function(){return i=t.Running,s(r,n),u},stop:function(){return i=t.Stopped,o.clear(),u},get state(){return r},get status(){return i}};return u}
 
     function discardPriorSnapshots(events, baselineTime) {
         for (var idx = events.length - 1; idx >= 0; idx--) {
@@ -3265,31 +3060,37 @@ var rrweb = (function (exports) {
         var playerMachine = c({
             id: 'player',
             context: context,
-            initial: 'paused',
+            initial: 'inited',
             states: {
+                inited: {
+                    on: {
+                        PLAY: {
+                            target: 'playing',
+                            actions: ['recordTimeOffset', 'play'],
+                        },
+                        TO_LIVE: {
+                            target: 'live',
+                            actions: ['startLive'],
+                        },
+                    },
+                },
                 playing: {
                     on: {
                         PAUSE: {
                             target: 'paused',
                             actions: ['pause'],
                         },
+                        END: 'ended',
+                        FAST_FORWARD: 'skipping',
                         CAST_EVENT: {
                             target: 'playing',
                             actions: 'castEvent',
-                        },
-                        END: {
-                            target: 'paused',
-                            actions: ['resetLastPlayedEvent', 'pause'],
-                        },
-                        ADD_EVENT: {
-                            target: 'playing',
-                            actions: ['addEvent'],
                         },
                     },
                 },
                 paused: {
                     on: {
-                        PLAY: {
+                        RESUME: {
                             target: 'playing',
                             actions: ['recordTimeOffset', 'play'],
                         },
@@ -3297,14 +3098,16 @@ var rrweb = (function (exports) {
                             target: 'paused',
                             actions: 'castEvent',
                         },
-                        TO_LIVE: {
-                            target: 'live',
-                            actions: ['startLive'],
-                        },
-                        ADD_EVENT: {
-                            target: 'paused',
-                            actions: ['addEvent'],
-                        },
+                    },
+                },
+                skipping: {
+                    on: {
+                        BACK_TO_NORMAL: 'playing',
+                    },
+                },
+                ended: {
+                    on: {
+                        REPLAY: 'playing',
                     },
                 },
                 live: {
@@ -3312,10 +3115,6 @@ var rrweb = (function (exports) {
                         ADD_EVENT: {
                             target: 'live',
                             actions: ['addEvent'],
-                        },
-                        CAST_EVENT: {
-                            target: 'live',
-                            actions: ['castEvent'],
                         },
                     },
                 },
@@ -3327,7 +3126,7 @@ var rrweb = (function (exports) {
                         if (event.type === 'CAST_EVENT') {
                             return event.payload.event;
                         }
-                        return ctx.lastPlayedEvent;
+                        return context.lastPlayedEvent;
                     },
                 }),
                 recordTimeOffset: r(function (ctx, event) {
@@ -3338,35 +3137,15 @@ var rrweb = (function (exports) {
                     return __assign(__assign({}, ctx), { timeOffset: timeOffset, baselineTime: ctx.events[0].timestamp + timeOffset });
                 }),
                 play: function (ctx) {
-                    var e_1, _a, e_2, _b;
-                    var _c;
+                    var e_1, _a;
                     var timer = ctx.timer, events = ctx.events, baselineTime = ctx.baselineTime, lastPlayedEvent = ctx.lastPlayedEvent;
                     timer.clear();
-                    try {
-                        for (var events_1 = __values(events), events_1_1 = events_1.next(); !events_1_1.done; events_1_1 = events_1.next()) {
-                            var event = events_1_1.value;
-                            addDelay(event, baselineTime);
-                        }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (events_1_1 && !events_1_1.done && (_a = events_1.return)) _a.call(events_1);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                    }
                     var neededEvents = discardPriorSnapshots(events, baselineTime);
                     var actions = new Array();
                     var _loop_1 = function (event) {
-                        var lastPlayedTimestamp = lastPlayedEvent === null || lastPlayedEvent === void 0 ? void 0 : lastPlayedEvent.timestamp;
-                        if ((lastPlayedEvent === null || lastPlayedEvent === void 0 ? void 0 : lastPlayedEvent.type) === exports.EventType.IncrementalSnapshot &&
-                            lastPlayedEvent.data.source === exports.IncrementalSource.MouseMove) {
-                            lastPlayedTimestamp =
-                                lastPlayedEvent.timestamp + ((_c = lastPlayedEvent.data.positions[0]) === null || _c === void 0 ? void 0 : _c.timeOffset);
-                        }
-                        if (lastPlayedTimestamp &&
-                            lastPlayedTimestamp < baselineTime &&
-                            (event.timestamp <= lastPlayedTimestamp ||
+                        if (lastPlayedEvent &&
+                            lastPlayedEvent.timestamp > baselineTime &&
+                            (event.timestamp <= lastPlayedEvent.timestamp ||
                                 event === lastPlayedEvent)) {
                             return "continue";
                         }
@@ -3384,7 +3163,7 @@ var rrweb = (function (exports) {
                                     castFn();
                                     emitter.emit(exports.ReplayerEvents.EventCast, event);
                                 },
-                                delay: event.delay,
+                                delay: getDelay(event, baselineTime),
                             });
                         }
                     };
@@ -3394,12 +3173,12 @@ var rrweb = (function (exports) {
                             _loop_1(event);
                         }
                     }
-                    catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
                     finally {
                         try {
-                            if (neededEvents_1_1 && !neededEvents_1_1.done && (_b = neededEvents_1.return)) _b.call(neededEvents_1);
+                            if (neededEvents_1_1 && !neededEvents_1_1.done && (_a = neededEvents_1.return)) _a.call(neededEvents_1);
                         }
-                        finally { if (e_2) throw e_2.error; }
+                        finally { if (e_1) throw e_1.error; }
                     }
                     emitter.emit(exports.ReplayerEvents.Flush);
                     timer.addActions(actions);
@@ -3408,12 +3187,8 @@ var rrweb = (function (exports) {
                 pause: function (ctx) {
                     ctx.timer.clear();
                 },
-                resetLastPlayedEvent: r(function (ctx) {
-                    return __assign(__assign({}, ctx), { lastPlayedEvent: null });
-                }),
                 startLive: r({
                     baselineTime: function (ctx, event) {
-                        ctx.timer.toggleLiveMode(true);
                         ctx.timer.start();
                         if (event.type === 'TO_LIVE' && event.payload.baselineTime) {
                             return event.payload.baselineTime;
@@ -3425,7 +3200,6 @@ var rrweb = (function (exports) {
                     var baselineTime = ctx.baselineTime, timer = ctx.timer, events = ctx.events;
                     if (machineEvent.type === 'ADD_EVENT') {
                         var event_1 = machineEvent.payload.event;
-                        addDelay(event_1, baselineTime);
                         events.push(event_1);
                         var isSync = event_1.timestamp < baselineTime;
                         var castFn_1 = getCastFn(event_1, isSync);
@@ -3438,11 +3212,8 @@ var rrweb = (function (exports) {
                                     castFn_1();
                                     emitter.emit(exports.ReplayerEvents.EventCast, event_1);
                                 },
-                                delay: event_1.delay,
+                                delay: getDelay(event_1, baselineTime),
                             });
-                            if (!timer.isActive()) {
-                                timer.start();
-                            }
                         }
                     }
                     return __assign(__assign({}, ctx), { events: events });
@@ -3450,54 +3221,6 @@ var rrweb = (function (exports) {
             },
         });
         return f(playerMachine);
-    }
-    function createSpeedService(context) {
-        var speedMachine = c({
-            id: 'speed',
-            context: context,
-            initial: 'normal',
-            states: {
-                normal: {
-                    on: {
-                        FAST_FORWARD: {
-                            target: 'skipping',
-                            actions: ['recordSpeed', 'setSpeed'],
-                        },
-                        SET_SPEED: {
-                            target: 'normal',
-                            actions: ['setSpeed'],
-                        },
-                    },
-                },
-                skipping: {
-                    on: {
-                        BACK_TO_NORMAL: {
-                            target: 'normal',
-                            actions: ['restoreSpeed'],
-                        },
-                        SET_SPEED: {
-                            target: 'normal',
-                            actions: ['setSpeed'],
-                        },
-                    },
-                },
-            },
-        }, {
-            actions: {
-                setSpeed: function (ctx, event) {
-                    if ('payload' in event) {
-                        ctx.timer.setSpeed(event.payload.speed);
-                    }
-                },
-                recordSpeed: r({
-                    normalSpeed: function (ctx) { return ctx.timer.speed; },
-                }),
-                restoreSpeed: function (ctx) {
-                    ctx.timer.setSpeed(ctx.normalSpeed);
-                },
-            },
-        });
-        return f(speedMachine);
     }
 
     var rules = function (blockClass) { return [
@@ -3509,60 +3232,43 @@ var rrweb = (function (exports) {
     var SKIP_TIME_INTERVAL = 5 * 1000;
     var mitt$1 = mitt || mittProxy;
     var REPLAY_CONSOLE_PREFIX = '[replayer]';
-    var defaultMouseTailConfig = {
-        duration: 500,
-        lineCap: 'round',
-        lineWidth: 3,
-        strokeStyle: 'red',
+    var defaultConfig = {
+        speed: 1,
+        root: document.body,
+        loadTimeout: 0,
+        skipInactive: false,
+        showWarning: true,
+        showDebug: false,
+        blockClass: 'rr-block',
+        liveMode: false,
+        insertStyleRules: [],
+        triggerFocus: true,
     };
     var Replayer = (function () {
         function Replayer(events, config) {
             var _this = this;
-            this.mouseTail = null;
-            this.tailPositions = [];
             this.emitter = mitt$1();
+            this.noramlSpeed = -1;
             this.legacy_missingNodeRetryMap = {};
-            this.imageMap = new Map();
             if (!(config === null || config === void 0 ? void 0 : config.liveMode) && events.length < 2) {
                 throw new Error('Replayer need at least 2 events.');
             }
-            var defaultConfig = {
-                speed: 1,
-                root: document.body,
-                loadTimeout: 0,
-                skipInactive: false,
-                showWarning: true,
-                showDebug: false,
-                blockClass: 'rr-block',
-                liveMode: false,
-                insertStyleRules: [],
-                triggerFocus: true,
-                UNSAFE_replayCanvas: false,
-                pauseAnimation: true,
-                mouseTail: defaultMouseTailConfig,
-            };
             this.config = Object.assign({}, defaultConfig, config);
             this.handleResize = this.handleResize.bind(this);
             this.getCastFn = this.getCastFn.bind(this);
             this.emitter.on(exports.ReplayerEvents.Resize, this.handleResize);
+            smoothscroll_1();
+            polyfill();
             this.setupDom();
             this.treeIndex = new TreeIndex();
             this.fragmentParentMap = new Map();
-            this.elementStateMap = new Map();
             this.emitter.on(exports.ReplayerEvents.Flush, function () {
                 var e_1, _a, e_2, _b, e_3, _c;
                 var _d = _this.treeIndex.flush(), scrollMap = _d.scrollMap, inputMap = _d.inputMap;
                 try {
-                    for (var _e = __values(_this.fragmentParentMap.entries()), _f = _e.next(); !_f.done; _f = _e.next()) {
-                        var _g = __read(_f.value, 2), frag = _g[0], parent = _g[1];
-                        mirror.map[parent.__sn.id] = parent;
-                        if (parent.__sn.type === NodeType.Element &&
-                            parent.__sn.tagName === 'textarea' &&
-                            frag.textContent) {
-                            parent.value = frag.textContent;
-                        }
-                        parent.appendChild(frag);
-                        _this.restoreState(parent);
+                    for (var _e = __values(scrollMap.values()), _f = _e.next(); !_f.done; _f = _e.next()) {
+                        var d = _f.value;
+                        _this.applyScroll(d);
                     }
                 }
                 catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -3572,36 +3278,40 @@ var rrweb = (function (exports) {
                     }
                     finally { if (e_1) throw e_1.error; }
                 }
-                _this.fragmentParentMap.clear();
-                _this.elementStateMap.clear();
                 try {
-                    for (var _h = __values(scrollMap.values()), _j = _h.next(); !_j.done; _j = _h.next()) {
-                        var d = _j.value;
-                        _this.applyScroll(d);
+                    for (var _g = __values(inputMap.values()), _h = _g.next(); !_h.done; _h = _g.next()) {
+                        var d = _h.value;
+                        _this.applyInput(d);
                     }
                 }
                 catch (e_2_1) { e_2 = { error: e_2_1 }; }
                 finally {
                     try {
-                        if (_j && !_j.done && (_b = _h.return)) _b.call(_h);
+                        if (_h && !_h.done && (_b = _g.return)) _b.call(_g);
                     }
                     finally { if (e_2) throw e_2.error; }
                 }
                 try {
-                    for (var _k = __values(inputMap.values()), _l = _k.next(); !_l.done; _l = _k.next()) {
-                        var d = _l.value;
-                        _this.applyInput(d);
+                    for (var _j = __values(_this.fragmentParentMap.entries()), _k = _j.next(); !_k.done; _k = _j.next()) {
+                        var _l = __read(_k.value, 2), frag = _l[0], parent = _l[1];
+                        mirror.map[parent.__sn.id] = parent;
+                        if (parent.__sn.type === NodeType.Element &&
+                            parent.__sn.tagName === 'textarea' &&
+                            frag.textContent) {
+                            parent.value = frag.textContent;
+                        }
+                        parent.appendChild(frag);
                     }
                 }
                 catch (e_3_1) { e_3 = { error: e_3_1 }; }
                 finally {
                     try {
-                        if (_l && !_l.done && (_c = _k.return)) _c.call(_k);
+                        if (_k && !_k.done && (_c = _j.return)) _c.call(_j);
                     }
                     finally { if (e_3) throw e_3.error; }
                 }
+                _this.fragmentParentMap.clear();
             });
-            var timer = new Timer([], (config === null || config === void 0 ? void 0 : config.speed) || defaultConfig.speed);
             this.service = createPlayerService({
                 events: events.map(function (e) {
                     if (config && config.unpackFn) {
@@ -3609,7 +3319,8 @@ var rrweb = (function (exports) {
                     }
                     return e;
                 }),
-                timer: timer,
+                timer: new Timer(this.config),
+                speed: (config === null || config === void 0 ? void 0 : config.speed) || defaultConfig.speed,
                 timeOffset: 0,
                 baselineTime: 0,
                 lastPlayedEvent: null,
@@ -3619,35 +3330,22 @@ var rrweb = (function (exports) {
             });
             this.service.start();
             this.service.subscribe(function (state) {
-                _this.emitter.emit(exports.ReplayerEvents.StateChange, {
-                    player: state,
-                });
+                if (!state.changed) {
+                    return;
+                }
             });
-            this.speedService = createSpeedService({
-                normalSpeed: -1,
-                timer: timer,
-            });
-            this.speedService.start();
-            this.speedService.subscribe(function (state) {
-                _this.emitter.emit(exports.ReplayerEvents.StateChange, {
-                    speed: state,
-                });
-            });
-            var firstMeta = this.service.state.context.events.find(function (e) { return e.type === exports.EventType.Meta; });
-            var firstFullsnapshot = this.service.state.context.events.find(function (e) { return e.type === exports.EventType.FullSnapshot; });
+            var contextEvents = this.service.state.context.events;
+            var firstMeta = contextEvents.find(function (e) { return e.type === exports.EventType.Meta; });
+            var firstFullsnapshot = contextEvents.find(function (e) { return e.type === exports.EventType.FullSnapshot; });
             if (firstMeta) {
-                var _a = firstMeta.data, width_1 = _a.width, height_1 = _a.height;
-                setTimeout(function () {
-                    _this.emitter.emit(exports.ReplayerEvents.Resize, {
-                        width: width_1,
-                        height: height_1,
-                    });
-                }, 0);
+                var _a = firstMeta.data, width = _a.width, height = _a.height;
+                this.emitter.emit(exports.ReplayerEvents.Resize, {
+                    width: width,
+                    height: height,
+                });
             }
             if (firstFullsnapshot) {
-                setTimeout(function () {
-                    _this.rebuildFullSnapshot(firstFullsnapshot);
-                }, 1);
+                this.rebuildFullSnapshot(firstFullsnapshot);
             }
         }
         Object.defineProperty(Replayer.prototype, "timer", {
@@ -3659,7 +3357,6 @@ var rrweb = (function (exports) {
         });
         Replayer.prototype.on = function (event, handler) {
             this.emitter.on(event, handler);
-            return this;
         };
         Replayer.prototype.setConfig = function (config) {
             var _this = this;
@@ -3667,37 +3364,13 @@ var rrweb = (function (exports) {
                 _this.config[key] = config[key];
             });
             if (!this.config.skipInactive) {
-                this.backToNormal();
-            }
-            if (typeof config.speed !== 'undefined') {
-                this.speedService.send({
-                    type: 'SET_SPEED',
-                    payload: {
-                        speed: config.speed,
-                    },
-                });
-            }
-            if (typeof config.mouseTail !== 'undefined') {
-                if (config.mouseTail === false) {
-                    if (this.mouseTail) {
-                        this.mouseTail.style.display = 'none';
-                    }
-                }
-                else {
-                    if (!this.mouseTail) {
-                        this.mouseTail = document.createElement('canvas');
-                        this.mouseTail.width = Number.parseFloat(this.iframe.width);
-                        this.mouseTail.height = Number.parseFloat(this.iframe.height);
-                        this.mouseTail.classList.add('replayer-mouse-tail');
-                        this.wrapper.insertBefore(this.mouseTail, this.iframe);
-                    }
-                    this.mouseTail.style.display = 'inherit';
-                }
+                this.noramlSpeed = -1;
             }
         };
         Replayer.prototype.getMetaData = function () {
-            var firstEvent = this.service.state.context.events[0];
-            var lastEvent = this.service.state.context.events[this.service.state.context.events.length - 1];
+            var events = this.service.state.context.events;
+            var firstEvent = events[0];
+            var lastEvent = events[events.length - 1];
             return {
                 startTime: firstEvent.timestamp,
                 endTime: lastEvent.timestamp,
@@ -3712,34 +3385,26 @@ var rrweb = (function (exports) {
             return baselineTime - events[0].timestamp;
         };
         Replayer.prototype.play = function (timeOffset) {
-            var _a;
             if (timeOffset === void 0) { timeOffset = 0; }
-            if (this.service.state.matches('paused')) {
-                this.service.send({ type: 'PLAY', payload: { timeOffset: timeOffset } });
+            if (this.service.state.value === 'ended') {
+                this.service.state.context.lastPlayedEvent = null;
+                this.service.send({ type: 'REPLAY' });
+            }
+            if (this.service.state.value === 'paused') {
+                this.service.send({ type: 'RESUME', payload: { timeOffset: timeOffset } });
             }
             else {
-                this.service.send({ type: 'PAUSE' });
                 this.service.send({ type: 'PLAY', payload: { timeOffset: timeOffset } });
             }
-            (_a = this.iframe.contentDocument) === null || _a === void 0 ? void 0 : _a.getElementsByTagName('html')[0].classList.remove('rrweb-paused');
             this.emitter.emit(exports.ReplayerEvents.Start);
         };
-        Replayer.prototype.pause = function (timeOffset) {
-            var _a;
-            if (timeOffset === undefined && this.service.state.matches('playing')) {
-                this.service.send({ type: 'PAUSE' });
-            }
-            if (typeof timeOffset === 'number') {
-                this.play(timeOffset);
-                this.service.send({ type: 'PAUSE' });
-            }
-            (_a = this.iframe.contentDocument) === null || _a === void 0 ? void 0 : _a.getElementsByTagName('html')[0].classList.add('rrweb-paused');
+        Replayer.prototype.pause = function () {
+            this.service.send({ type: 'PAUSE' });
             this.emitter.emit(exports.ReplayerEvents.Pause);
         };
         Replayer.prototype.resume = function (timeOffset) {
             if (timeOffset === void 0) { timeOffset = 0; }
-            console.warn("The 'resume' will be departed in 1.0. Please use 'play' method which has the same interface.");
-            this.play(timeOffset);
+            this.service.send({ type: 'RESUME', payload: { timeOffset: timeOffset } });
             this.emitter.emit(exports.ReplayerEvents.Resume);
         };
         Replayer.prototype.startLive = function (baselineTime) {
@@ -3769,50 +3434,19 @@ var rrweb = (function (exports) {
             this.mouse = document.createElement('div');
             this.mouse.classList.add('replayer-mouse');
             this.wrapper.appendChild(this.mouse);
-            if (this.config.mouseTail !== false) {
-                this.mouseTail = document.createElement('canvas');
-                this.mouseTail.classList.add('replayer-mouse-tail');
-                this.mouseTail.style.display = 'inherit';
-                this.wrapper.appendChild(this.mouseTail);
-            }
             this.iframe = document.createElement('iframe');
-            var attributes = ['allow-same-origin'];
-            if (this.config.UNSAFE_replayCanvas) {
-                attributes.push('allow-scripts');
-            }
-            this.iframe.style.display = 'none';
-            this.iframe.setAttribute('sandbox', attributes.join(' '));
+            //this.iframe.setAttribute('sandbox', 'allow-same-origin');
             this.disableInteract();
             this.wrapper.appendChild(this.iframe);
-            if (this.iframe.contentWindow && this.iframe.contentDocument) {
-                polyfill$1(this.iframe.contentWindow, this.iframe.contentDocument);
-                polyfill(this.iframe.contentWindow);
-            }
         };
         Replayer.prototype.handleResize = function (dimension) {
-            var e_4, _a;
-            this.iframe.style.display = 'inherit';
-            try {
-                for (var _b = __values([this.mouseTail, this.iframe]), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var el = _c.value;
-                    if (!el) {
-                        continue;
-                    }
-                    el.setAttribute('width', String(dimension.width));
-                    el.setAttribute('height', String(dimension.height));
-                }
-            }
-            catch (e_4_1) { e_4 = { error: e_4_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_4) throw e_4.error; }
-            }
+            this.iframe.setAttribute('width', String(dimension.width));
+            this.iframe.setAttribute('height', String(dimension.height));
         };
         Replayer.prototype.getCastFn = function (event, isSync) {
             var _this = this;
             if (isSync === void 0) { isSync = false; }
+            var events = this.service.state.context.events;
             var castFn;
             switch (event.type) {
                 case exports.EventType.DomContentLoaded:
@@ -3833,51 +3467,48 @@ var rrweb = (function (exports) {
                     break;
                 case exports.EventType.FullSnapshot:
                     castFn = function () {
-                        _this.rebuildFullSnapshot(event, isSync);
+                        _this.rebuildFullSnapshot(event);
                         _this.iframe.contentWindow.scrollTo(event.data.initialOffset);
                     };
                     break;
                 case exports.EventType.IncrementalSnapshot:
                     castFn = function () {
-                        var e_5, _a;
+                        var e_4, _a;
                         _this.applyIncremental(event, isSync);
-                        if (isSync) {
-                            return;
-                        }
                         if (event === _this.nextUserInteractionEvent) {
                             _this.nextUserInteractionEvent = null;
-                            _this.backToNormal();
+                            _this.restoreSpeed();
                         }
                         if (_this.config.skipInactive && !_this.nextUserInteractionEvent) {
                             try {
-                                for (var _b = __values(_this.service.state.context.events), _c = _b.next(); !_c.done; _c = _b.next()) {
-                                    var _event = _c.value;
+                                for (var events_1 = __values(events), events_1_1 = events_1.next(); !events_1_1.done; events_1_1 = events_1.next()) {
+                                    var _event = events_1_1.value;
                                     if (_event.timestamp <= event.timestamp) {
                                         continue;
                                     }
                                     if (_this.isUserInteraction(_event)) {
                                         if (_event.delay - event.delay >
-                                            SKIP_TIME_THRESHOLD *
-                                                _this.speedService.state.context.timer.speed) {
+                                            SKIP_TIME_THRESHOLD * _this.config.speed) {
                                             _this.nextUserInteractionEvent = _event;
                                         }
                                         break;
                                     }
                                 }
                             }
-                            catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                            catch (e_4_1) { e_4 = { error: e_4_1 }; }
                             finally {
                                 try {
-                                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                                    if (events_1_1 && !events_1_1.done && (_a = events_1.return)) _a.call(events_1);
                                 }
-                                finally { if (e_5) throw e_5.error; }
+                                finally { if (e_4) throw e_4.error; }
                             }
                             if (_this.nextUserInteractionEvent) {
+                                _this.noramlSpeed = _this.config.speed;
                                 var skipTime = _this.nextUserInteractionEvent.delay - event.delay;
                                 var payload = {
                                     speed: Math.min(Math.round(skipTime / SKIP_TIME_INTERVAL), 360),
                                 };
-                                _this.speedService.send({ type: 'FAST_FORWARD', payload: payload });
+                                _this.setConfig(payload);
                                 _this.emitter.emit(exports.ReplayerEvents.SkipStart, payload);
                             }
                         }
@@ -3889,29 +3520,15 @@ var rrweb = (function (exports) {
                     castFn();
                 }
                 _this.service.send({ type: 'CAST_EVENT', payload: { event: event } });
-                if (event ===
-                    _this.service.state.context.events[_this.service.state.context.events.length - 1]) {
-                    var finish_1 = function () {
-                        _this.backToNormal();
-                        _this.service.send('END');
-                        _this.emitter.emit(exports.ReplayerEvents.Finish);
-                    };
-                    if (event.type === exports.EventType.IncrementalSnapshot &&
-                        event.data.source === exports.IncrementalSource.MouseMove &&
-                        event.data.positions.length) {
-                        setTimeout(function () {
-                            finish_1();
-                        }, Math.max(0, -event.data.positions[0].timeOffset));
-                    }
-                    else {
-                        finish_1();
-                    }
+                if (event === events[events.length - 1]) {
+                    _this.restoreSpeed();
+                    _this.service.send('END');
+                    _this.emitter.emit(exports.ReplayerEvents.Finish);
                 }
             };
             return wrappedCastFn;
         };
-        Replayer.prototype.rebuildFullSnapshot = function (event, isSync) {
-            if (isSync === void 0) { isSync = false; }
+        Replayer.prototype.rebuildFullSnapshot = function (event) {
             if (!this.iframe.contentDocument) {
                 return console.warn('Looks like your replayer has been destroyed.');
             }
@@ -3919,31 +3536,16 @@ var rrweb = (function (exports) {
                 console.warn('Found unresolved missing node map', this.legacy_missingNodeRetryMap);
             }
             this.legacy_missingNodeRetryMap = {};
-            mirror.map = rebuild(event.data.node, {
-                doc: this.iframe.contentDocument,
-            })[1];
+            mirror.map = rebuild(event.data.node, this.iframe.contentDocument)[1];
             var styleEl = document.createElement('style');
             var _a = this.iframe.contentDocument, documentElement = _a.documentElement, head = _a.head;
             documentElement.insertBefore(styleEl, head);
             var injectStylesRules = rules(this.config.blockClass).concat(this.config.insertStyleRules);
-            if (this.config.pauseAnimation) {
-                injectStylesRules.push('html.rrweb-paused * { animation-play-state: paused !important; }');
-            }
-            if (!this.service.state.matches('playing')) {
-                this.iframe.contentDocument
-                    .getElementsByTagName('html')[0]
-                    .classList.add('rrweb-paused');
-            }
             for (var idx = 0; idx < injectStylesRules.length; idx++) {
                 styleEl.sheet.insertRule(injectStylesRules[idx], idx);
             }
             this.emitter.emit(exports.ReplayerEvents.FullsnapshotRebuilded, event);
-            if (!isSync) {
-                this.waitForStylesheetLoad();
-            }
-            if (this.config.UNSAFE_replayCanvas) {
-                this.preloadAllImages();
-            }
+            this.waitForStylesheetLoad();
         };
         Replayer.prototype.waitForStylesheetLoad = function () {
             var _this = this;
@@ -3953,15 +3555,6 @@ var rrweb = (function (exports) {
                 var unloadSheets_1 = new Set();
                 var timer_1;
                 var beforeLoadState_1 = this.service.state;
-                var stateHandler_1 = function () {
-                    beforeLoadState_1 = _this.service.state;
-                };
-                this.emitter.on(exports.ReplayerEvents.Start, stateHandler_1);
-                this.emitter.on(exports.ReplayerEvents.Pause, stateHandler_1);
-                var unsubscribe_1 = function () {
-                    _this.emitter.off(exports.ReplayerEvents.Start, stateHandler_1);
-                    _this.emitter.off(exports.ReplayerEvents.Pause, stateHandler_1);
-                };
                 head
                     .querySelectorAll('link[rel="stylesheet"]')
                     .forEach(function (css) {
@@ -3971,13 +3564,12 @@ var rrweb = (function (exports) {
                             unloadSheets_1.delete(css);
                             if (unloadSheets_1.size === 0 && timer_1 !== -1) {
                                 if (beforeLoadState_1.matches('playing')) {
-                                    _this.play(_this.getCurrentTime());
+                                    _this.resume(_this.getCurrentTime());
                                 }
                                 _this.emitter.emit(exports.ReplayerEvents.LoadStylesheetEnd);
                                 if (timer_1) {
                                     window.clearTimeout(timer_1);
                                 }
-                                unsubscribe_1();
                             }
                         });
                     }
@@ -3987,67 +3579,16 @@ var rrweb = (function (exports) {
                     this.emitter.emit(exports.ReplayerEvents.LoadStylesheetStart);
                     timer_1 = window.setTimeout(function () {
                         if (beforeLoadState_1.matches('playing')) {
-                            _this.play(_this.getCurrentTime());
+                            _this.resume(_this.getCurrentTime());
                         }
                         timer_1 = -1;
-                        unsubscribe_1();
                     }, this.config.loadTimeout);
                 }
             }
         };
-        Replayer.prototype.preloadAllImages = function () {
-            var e_6, _a;
-            var _this = this;
-            var beforeLoadState = this.service.state;
-            var stateHandler = function () {
-                beforeLoadState = _this.service.state;
-            };
-            this.emitter.on(exports.ReplayerEvents.Start, stateHandler);
-            this.emitter.on(exports.ReplayerEvents.Pause, stateHandler);
-            var unsubscribe = function () {
-                _this.emitter.off(exports.ReplayerEvents.Start, stateHandler);
-                _this.emitter.off(exports.ReplayerEvents.Pause, stateHandler);
-            };
-            var count = 0;
-            var resolved = 0;
-            try {
-                for (var _b = __values(this.service.state.context.events), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var event = _c.value;
-                    if (event.type === exports.EventType.IncrementalSnapshot &&
-                        event.data.source === exports.IncrementalSource.CanvasMutation &&
-                        event.data.property === 'drawImage' &&
-                        typeof event.data.args[0] === 'string' &&
-                        !this.imageMap.has(event)) {
-                        count++;
-                        var image = document.createElement('img');
-                        image.src = event.data.args[0];
-                        this.imageMap.set(event, image);
-                        image.onload = function () {
-                            resolved++;
-                            if (resolved === count) {
-                                if (beforeLoadState.matches('playing')) {
-                                    _this.play(_this.getCurrentTime());
-                                }
-                                unsubscribe();
-                            }
-                        };
-                    }
-                }
-            }
-            catch (e_6_1) { e_6 = { error: e_6_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_6) throw e_6.error; }
-            }
-            if (count !== resolved) {
-                this.service.send({ type: 'PAUSE' });
-            }
-        };
         Replayer.prototype.applyIncremental = function (e, isSync) {
             var _this = this;
-            var _a, _b;
+            var baselineTime = this.service.state.context.baselineTime;
             var d = e.data;
             switch (d.source) {
                 case exports.IncrementalSource.Mutation: {
@@ -4071,15 +3612,9 @@ var rrweb = (function (exports) {
                                 doAction: function () {
                                     _this.moveAndHover(d, p.x, p.y, p.id);
                                 },
-                                delay: p.timeOffset +
-                                    e.timestamp -
-                                    _this.service.state.context.baselineTime,
+                                delay: p.timeOffset + e.timestamp - baselineTime,
                             };
                             _this.timer.addAction(action);
-                        });
-                        this.timer.addAction({
-                            doAction: function () { },
-                            delay: e.delay - ((_a = d.positions[0]) === null || _a === void 0 ? void 0 : _a.timeOffset),
                         });
                     }
                     break;
@@ -4159,24 +3694,17 @@ var rrweb = (function (exports) {
                         return this.debugNodeNotFound(d, d.id);
                     }
                     var mediaEl_1 = target;
-                    try {
-                        if (d.type === MediaInteractions.Pause) {
-                            mediaEl_1.pause();
-                        }
-                        if (d.type === MediaInteractions.Play) {
-                            if (mediaEl_1.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-                                mediaEl_1.play();
-                            }
-                            else {
-                                mediaEl_1.addEventListener('canplay', function () {
-                                    mediaEl_1.play();
-                                });
-                            }
-                        }
+                    if (d.type === MediaInteractions.Pause) {
+                        mediaEl_1.pause();
                     }
-                    catch (error) {
-                        if (this.config.showWarning) {
-                            console.warn("Failed to replay media interactions: " + (error.message || error));
+                    if (d.type === MediaInteractions.Play) {
+                        if (mediaEl_1.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+                            mediaEl_1.play();
+                        }
+                        else {
+                            mediaEl_1.addEventListener('canplay', function () {
+                                mediaEl_1.play();
+                            });
                         }
                     }
                     break;
@@ -4187,15 +3715,6 @@ var rrweb = (function (exports) {
                         return this.debugNodeNotFound(d, d.id);
                     }
                     var styleEl = target;
-                    var parent = target.parentNode;
-                    var usingVirtualParent = this.fragmentParentMap.has(parent);
-                    var placeholderNode = void 0;
-                    if (usingVirtualParent) {
-                        var domParent = this.fragmentParentMap.get(target.parentNode);
-                        placeholderNode = document.createTextNode('');
-                        parent.replaceChild(placeholderNode, target);
-                        domParent.appendChild(target);
-                    }
                     var styleSheet_1 = styleEl.sheet;
                     if (d.adds) {
                         d.adds.forEach(function (_a) {
@@ -4213,63 +3732,14 @@ var rrweb = (function (exports) {
                     if (d.removes) {
                         d.removes.forEach(function (_a) {
                             var index = _a.index;
-                            try {
-                                styleSheet_1.deleteRule(index);
-                            }
-                            catch (e) {
-                            }
+                            styleSheet_1.deleteRule(index);
                         });
-                    }
-                    if (usingVirtualParent && placeholderNode) {
-                        parent.replaceChild(target, placeholderNode);
-                    }
-                    break;
-                }
-                case exports.IncrementalSource.CanvasMutation: {
-                    if (!this.config.UNSAFE_replayCanvas) {
-                        return;
-                    }
-                    var target = mirror.getNode(d.id);
-                    if (!target) {
-                        return this.debugNodeNotFound(d, d.id);
-                    }
-                    try {
-                        var ctx = target.getContext('2d');
-                        if (d.setter) {
-                            ctx[d.property] = d.args[0];
-                            return;
-                        }
-                        var original = ctx[d.property];
-                        if (d.property === 'drawImage' && typeof d.args[0] === 'string') {
-                            var image = this.imageMap.get(e);
-                            d.args[0] = image;
-                            original.apply(ctx, d.args);
-                        }
-                        else {
-                            original.apply(ctx, d.args);
-                        }
-                    }
-                    catch (error) {
-                        this.warnCanvasMutationFailed(d, d.id, error);
-                    }
-                    break;
-                }
-                case exports.IncrementalSource.Font: {
-                    try {
-                        var fontFace = new FontFace(d.family, d.buffer ? new Uint8Array(JSON.parse(d.fontSource)) : d.fontSource, d.descriptors);
-                        (_b = this.iframe.contentDocument) === null || _b === void 0 ? void 0 : _b.fonts.add(fontFace);
-                    }
-                    catch (error) {
-                        if (this.config.showWarning) {
-                            console.warn(error);
-                        }
                     }
                     break;
                 }
             }
         };
         Replayer.prototype.applyMutation = function (d, useVirtualParent) {
-            var e_7, _a;
             var _this = this;
             d.removes.forEach(function (mutation) {
                 var target = mirror.getNode(mutation.id);
@@ -4286,11 +3756,6 @@ var rrweb = (function (exports) {
                     if (realParent && realParent.contains(target)) {
                         realParent.removeChild(target);
                     }
-                    else if (_this.fragmentParentMap.has(target)) {
-                        var realTarget = _this.fragmentParentMap.get(target);
-                        parent.removeChild(realTarget);
-                        _this.fragmentParentMap.delete(target);
-                    }
                     else {
                         parent.removeChild(target);
                     }
@@ -4298,19 +3763,6 @@ var rrweb = (function (exports) {
             });
             var legacy_missingNodeMap = __assign({}, this.legacy_missingNodeRetryMap);
             var queue = [];
-            function nextNotInDOM(mutation) {
-                var next = null;
-                if (mutation.nextId) {
-                    next = mirror.getNode(mutation.nextId);
-                }
-                if (mutation.nextId !== null &&
-                    mutation.nextId !== undefined &&
-                    mutation.nextId !== -1 &&
-                    !next) {
-                    return true;
-                }
-                return false;
-            }
             var appendNode = function (mutation) {
                 if (!_this.iframe.contentDocument) {
                     return console.warn('Looks like your replayer has been destroyed.');
@@ -4319,18 +3771,11 @@ var rrweb = (function (exports) {
                 if (!parent) {
                     return queue.push(mutation);
                 }
-                var parentInDocument = null;
-                if (_this.iframe.contentDocument.contains) {
-                    parentInDocument = _this.iframe.contentDocument.contains(parent);
-                }
-                else if (_this.iframe.contentDocument.body.contains) {
-                    parentInDocument = _this.iframe.contentDocument.body.contains(parent);
-                }
+                var parentInDocument = _this.iframe.contentDocument.contains(parent);
                 if (useVirtualParent && parentInDocument) {
                     var virtualParent = document.createDocumentFragment();
                     mirror.map[mutation.parentId] = virtualParent;
                     _this.fragmentParentMap.set(virtualParent, parent);
-                    _this.storeState(parent);
                     while (parent.firstChild) {
                         virtualParent.appendChild(parent.firstChild);
                     }
@@ -4344,15 +3789,10 @@ var rrweb = (function (exports) {
                 if (mutation.nextId) {
                     next = mirror.getNode(mutation.nextId);
                 }
-                if (nextNotInDOM(mutation)) {
+                if (mutation.nextId !== null && mutation.nextId !== -1 && !next) {
                     return queue.push(mutation);
                 }
-                var target = buildNodeWithSN(mutation.node, {
-                    doc: _this.iframe.contentDocument,
-                    map: mirror.map,
-                    skipChild: true,
-                    hackCss: true,
-                });
+                var target = buildNodeWithSN(mutation.node, _this.iframe.contentDocument, mirror.map, true);
                 if (mutation.previousId === -1 || mutation.nextId === -1) {
                     legacy_missingNodeMap[mutation.node.id] = {
                         node: target,
@@ -4378,35 +3818,12 @@ var rrweb = (function (exports) {
             d.adds.forEach(function (mutation) {
                 appendNode(mutation);
             });
-            var startTime = Date.now();
             while (queue.length) {
-                var resolveTrees = queueToResolveTrees(queue);
-                queue.length = 0;
-                if (Date.now() - startTime > 500) {
-                    this.warn('Timeout in the loop, please check the resolve tree data:', resolveTrees);
-                    break;
+                if (queue.every(function (m) { return !Boolean(mirror.getNode(m.parentId)); })) {
+                    return queue.forEach(function (m) { return _this.warnNodeNotFound(d, m.node.id); });
                 }
-                try {
-                    for (var resolveTrees_1 = (e_7 = void 0, __values(resolveTrees)), resolveTrees_1_1 = resolveTrees_1.next(); !resolveTrees_1_1.done; resolveTrees_1_1 = resolveTrees_1.next()) {
-                        var tree = resolveTrees_1_1.value;
-                        var parent = mirror.getNode(tree.value.parentId);
-                        if (!parent) {
-                            this.debug('Drop resolve tree since there is no parent for the root node.', tree);
-                        }
-                        else {
-                            iterateResolveTree(tree, function (mutation) {
-                                appendNode(mutation);
-                            });
-                        }
-                    }
-                }
-                catch (e_7_1) { e_7 = { error: e_7_1 }; }
-                finally {
-                    try {
-                        if (resolveTrees_1_1 && !resolveTrees_1_1.done && (_a = resolveTrees_1.return)) _a.call(resolveTrees_1);
-                    }
-                    finally { if (e_7) throw e_7.error; }
-                }
+                var mutation = queue.shift();
+                appendNode(mutation);
             }
             if (Object.keys(legacy_missingNodeMap).length) {
                 Object.assign(this.legacy_missingNodeRetryMap, legacy_missingNodeMap);
@@ -4432,19 +3849,23 @@ var rrweb = (function (exports) {
                 for (var attributeName in mutation.attributes) {
                     if (typeof attributeName === 'string') {
                         var value = mutation.attributes[attributeName];
-                        try {
+
+                        if (attributeName == 'rr_dataURL') {
+                            var ctx = target.getContext('2d');
+                            var img = new Image();
+                            img.onload = function() { ctx.drawImage(img, 0, 0, img.width, img.height); };
+                            img.src = value;
+                        } else {
+
                             if (value !== null) {
-                                target.setAttribute(attributeName, value);
+                                target.setAttribute(attributeName, value); //5555
                             }
                             else {
                                 target.removeAttribute(attributeName);
                             }
+                            
                         }
-                        catch (error) {
-                            if (_this.config.showWarning) {
-                                console.warn('An error occurred may due to the checkout feature.', error);
-                            }
-                        }
+
                     }
                 }
             });
@@ -4508,44 +3929,11 @@ var rrweb = (function (exports) {
         Replayer.prototype.moveAndHover = function (d, x, y, id) {
             this.mouse.style.left = x + "px";
             this.mouse.style.top = y + "px";
-            this.drawMouseTail({ x: x, y: y });
             var target = mirror.getNode(id);
             if (!target) {
                 return this.debugNodeNotFound(d, id);
             }
             this.hoverElements(target);
-        };
-        Replayer.prototype.drawMouseTail = function (position) {
-            var _this = this;
-            if (!this.mouseTail) {
-                return;
-            }
-            var _a = this.config.mouseTail === true
-                ? defaultMouseTailConfig
-                : Object.assign({}, defaultMouseTailConfig, this.config.mouseTail), lineCap = _a.lineCap, lineWidth = _a.lineWidth, strokeStyle = _a.strokeStyle, duration = _a.duration;
-            var draw = function () {
-                if (!_this.mouseTail) {
-                    return;
-                }
-                var ctx = _this.mouseTail.getContext('2d');
-                if (!ctx || !_this.tailPositions.length) {
-                    return;
-                }
-                ctx.clearRect(0, 0, _this.mouseTail.width, _this.mouseTail.height);
-                ctx.beginPath();
-                ctx.lineWidth = lineWidth;
-                ctx.lineCap = lineCap;
-                ctx.strokeStyle = strokeStyle;
-                ctx.moveTo(_this.tailPositions[0].x, _this.tailPositions[0].y);
-                _this.tailPositions.forEach(function (p) { return ctx.lineTo(p.x, p.y); });
-                ctx.stroke();
-            };
-            this.tailPositions.push(position);
-            draw();
-            setTimeout(function () {
-                _this.tailPositions = _this.tailPositions.filter(function (p) { return p !== position; });
-                draw();
-            }, duration);
         };
         Replayer.prototype.hoverElements = function (el) {
             var _a;
@@ -4567,117 +3955,368 @@ var rrweb = (function (exports) {
             return (event.data.source > exports.IncrementalSource.Mutation &&
                 event.data.source <= exports.IncrementalSource.Input);
         };
-        Replayer.prototype.backToNormal = function () {
-            this.nextUserInteractionEvent = null;
-            if (this.speedService.state.matches('normal')) {
+        Replayer.prototype.restoreSpeed = function () {
+            if (this.noramlSpeed === -1) {
                 return;
             }
-            this.speedService.send({ type: 'BACK_TO_NORMAL' });
-            this.emitter.emit(exports.ReplayerEvents.SkipEnd, {
-                speed: this.speedService.state.context.normalSpeed,
-            });
-        };
-        Replayer.prototype.storeState = function (parent) {
-            var e_8, _a;
-            if (parent) {
-                if (parent.nodeType === parent.ELEMENT_NODE) {
-                    var parentElement = parent;
-                    if (parentElement.scrollLeft || parentElement.scrollTop) {
-                        this.elementStateMap.set(parent, {
-                            scroll: [parentElement.scrollLeft, parentElement.scrollTop],
-                        });
-                    }
-                    var children = parentElement.children;
-                    try {
-                        for (var _b = __values(Array.from(children)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                            var child = _c.value;
-                            this.storeState(child);
-                        }
-                    }
-                    catch (e_8_1) { e_8 = { error: e_8_1 }; }
-                    finally {
-                        try {
-                            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                        }
-                        finally { if (e_8) throw e_8.error; }
-                    }
-                }
-            }
-        };
-        Replayer.prototype.restoreState = function (parent) {
-            var e_9, _a;
-            if (parent.nodeType === parent.ELEMENT_NODE) {
-                var parentElement = parent;
-                if (this.elementStateMap.has(parent)) {
-                    var storedState = this.elementStateMap.get(parent);
-                    if (storedState.scroll) {
-                        parentElement.scrollLeft = storedState.scroll[0];
-                        parentElement.scrollTop = storedState.scroll[1];
-                    }
-                    this.elementStateMap.delete(parent);
-                }
-                var children = parentElement.children;
-                try {
-                    for (var _b = __values(Array.from(children)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                        var child = _c.value;
-                        this.restoreState(child);
-                    }
-                }
-                catch (e_9_1) { e_9 = { error: e_9_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                    }
-                    finally { if (e_9) throw e_9.error; }
-                }
-            }
+            var payload = { speed: this.noramlSpeed };
+            this.setConfig(payload);
+            this.emitter.emit(exports.ReplayerEvents.SkipEnd, payload);
+            this.noramlSpeed = -1;
         };
         Replayer.prototype.warnNodeNotFound = function (d, id) {
-            this.warn("Node with id '" + id + "' not found in", d);
-        };
-        Replayer.prototype.warnCanvasMutationFailed = function (d, id, error) {
-            this.warn("Has error on update canvas '" + id + "'", d, error);
-        };
-        Replayer.prototype.debugNodeNotFound = function (d, id) {
-            this.debug(REPLAY_CONSOLE_PREFIX, "Node with id '" + id + "' not found in", d);
-        };
-        Replayer.prototype.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
             if (!this.config.showWarning) {
                 return;
             }
-            console.warn.apply(console, __spread([REPLAY_CONSOLE_PREFIX], args));
+            console.warn(REPLAY_CONSOLE_PREFIX, "Node with id '" + id + "' not found in", d);
         };
-        Replayer.prototype.debug = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
+        Replayer.prototype.debugNodeNotFound = function (d, id) {
             if (!this.config.showDebug) {
                 return;
             }
-            console.log.apply(console, __spread([REPLAY_CONSOLE_PREFIX], args));
+            console.log(REPLAY_CONSOLE_PREFIX, "Node with id '" + id + "' not found in", d);
         };
         return Replayer;
     }());
 
     var addCustomEvent = record.addCustomEvent;
-    var freezePage = record.freezePage;
 
     exports.Replayer = Replayer;
     exports.addCustomEvent = addCustomEvent;
-    exports.freezePage = freezePage;
     exports.mirror = mirror;
     exports.record = record;
     exports.utils = utils;
-
-    Object.defineProperty(exports, '__esModule', { value: true });
+    exports.__weid = genId;
 
     return exports;
 
 }({}));
 
-export default rrweb;
+
+/* rrwebsdk-modules : api  */
+
+var rrwebSDK = (function(factory) {
+
+    var trace = function(i) { console.log('rrwebSDK : ', i); };
+    trace('init ...');
+    if (typeof module === 'object' && typeof module.exports === 'object') {
+        trace('init ... module mode ...');
+        module.exports = factory(trace, rrweb);
+    }
+    trace('init ... ok');
+    return factory(trace, rrweb);
+    }(function(trace, rrweb) {
+
+    return function(options) {
+
+        var status = {
+            timer : null,
+            events : [],
+            stop : true,
+            debug : false,
+            rrwebStop : null,
+            leaveType : false
+        };
+
+        var config = {
+            reportUrl : 'https://www.yunbaoxiao.com.cn/recall',
+            reportTimes : 3,
+            reportTimeout : 0,
+            notSupportInfo : '浏览器版本过低，需要 IE11+ 以上版本。',
+            notSupportEvent : null,
+            sameOriginMerger : false,
+            signatureMode : 1,
+        };
+
+        var cache = {
+            recallCode : '',
+            busCode: '',
+            goodsCode: '',
+            goodsVersion: '',
+        }
+        var openRequest = 0;
+
+        var _debug = function(i) {
+            if (status.debug) console.log('rrwebSDK : ', i);
+        }
+
+        var _shieldvconsole = function() {
+            var vconsole = document.getElementById('__vconsole');
+            if(!vconsole) return;
+            if(!vconsole.classList.contains('rr-block')) {
+                vconsole.classList.add('rr-block');
+                vconsole.classList.add('rr-ignore');
+                trace('vconsole shield.');
+            }
+        }
+
+        var _cache = function(a) {
+            var c = window.sessionStorage, k = 'rrwebsdk_cache';
+            switch(a) {
+                case undefined: return JSON.parse(c.getItem(k)) || cache;
+                case null: c.removeItem(k); break;
+                default: c.setItem(k, JSON.stringify(cache));
+            }
+        }
+
+        var _report = function(callback) {
+            _shieldvconsole();
+            _debug('report ...');
+            if (!status.events.length) {
+                trace('report ... ignore');
+                if (typeof callback == 'function') {
+                    if(openRequest == 0 ){
+                        callback(true);
+                    }else{
+                        callback(false);
+                    }
+                }
+                return;
+            }
+            var events = [].concat(status.events); status.events = [];
+            var data = JSON.parse(JSON.stringify(cache));
+            data.events = JSON.stringify({ events: events });
+            _debug(data);
+            var body = '';
+            for(var k in data) {
+                body += '&'+k+'='+encodeURIComponent(data[k]);
+            }
+            body = body.substring(1);
+            var url = config.reportUrl+'/api/events/report.shtml';
+            var xhr = new XMLHttpRequest();
+            openRequest ++ ;
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if(xhr.readyState == 4) {
+                    openRequest --;
+                    if(xhr.status == 200) {
+                        trace('report ... ok (' + JSON.parse(xhr.responseText || '{}').message + ')');
+                        if (typeof callback == 'function') callback(true);
+                    }else{
+                        trace('report ... error (' + xhr.status + ')');
+                        status.events = [].concat(events, status.events);
+                        if (typeof callback == 'function') callback(false);
+                    }
+                }
+            }
+            if (config.reportTimeout) {
+                xhr.timeout = config.reportTimeout * 1000;
+            }
+            xhr.send(body);
+        }
+
+        var _start = function() {
+            if (!status.stop) return;
+            status.startType =true;
+            status.stop = false;
+            status.rrwebStop = rrweb.record({
+                emit : function(event) {
+                    if (status.stop) _debug('rr ... miss');
+                    else {
+                        _debug('rr ... +1 ' + JSON.stringify(event));
+                        status.events.push(event);
+                    }
+                },
+            });
+            status.timer = setInterval(_report, config.reportTimes * 1000);
+            _report(success =>{
+                if(success) {status.startType = false}
+            });
+        }
+
+        var _stop = function(callback, methodName) {
+            status.stop = true;
+            if(typeof status.rrwebStop == 'function') status.rrwebStop();
+            clearInterval(status.timer);
+            if(methodName) _report(function(state) {
+                if (state && methodName == 'stop') _cache(null);
+                if (typeof callback == 'function') callback(state);
+                trace(methodName + ' ... ' + (state ? 'ok' : 'error'));
+            });
+        }
+
+        var _leaveReport = function(callback, methodName) {
+            status.stop = true;
+            if(typeof status.rrwebStop == 'function') status.rrwebStop();
+            clearInterval(status.timer);
+            if(methodName) _report(function(state) {
+                callback(state);
+                status.leaveType = false;
+                if (state === true) {
+
+                } else {
+                    setTimeout(_start, 1);
+                }
+            });
+        }
+
+        var _token = function(a) {
+            if (a == 'encode') {
+                _debug('token encode ...');
+                return 'rrwebsdk_token=' + JSON.stringify(cache).replace(/"/g,'@').replace(/:/g,'-').replace(/,/g,'_').replace(/[{}]/g,'')
+            }
+            if (a == 'decode') {
+                _debug('token decode ...');
+                var vars = window.location.search.substring(1).split("&");
+                var rrwebsdk_token = '';
+                for (var i=0; i<vars.length; i++) {
+                    var pair = vars[i].split("=");
+                    if(pair[0] == 'rrwebsdk_token') { rrwebsdk_token = pair[1]; break; }
+                }
+                _debug('token decode ... : ' + (rrwebsdk_token || 'null'));
+                if (rrwebsdk_token) {
+                    var token = JSON.parse('{' + rrwebsdk_token.replace(/@/g,'"').replace(/-/g,':').replace(/_/g,',') + '}');
+                    for(var k in cache) { if (Object.keys(token).indexOf(k) < 0) return false; }
+                    return token;
+                }
+                return false;
+            }
+        }
+
+        this.report = function(data) {
+            var crucial = [
+                'goodsCode',    //产品编码
+                'goodsVersion', //产品版本
+                'busCode',      //业务编码
+                'origin',       //来源
+            ];
+            var order = [
+                'goodsName',    //产品名称
+                'orderNo',      //订单号
+                'policyNo',     //保单号
+                'applicantName',//投保人名
+                'idNo',         //投保证件
+                'origin',       //来源
+            ];
+            var c = false, u = {};
+            for(var k in data) {
+                if (crucial.indexOf(k) >= 0) { cache[k] = data[k]; c=1; }
+                if (crucial.concat(order).indexOf(k) >= 0) u[k] = data[k];
+            }
+            if (c) _cache(true);
+            if (JSON.stringify(u) != '{}') status.events.push({ type:'_customer_variable_', data:u});
+        };
+
+
+        this.start = function(data) {
+            console.log('开始了开始了')
+            trace('start ...');
+            if (!status.stop) {
+                trace('start ... error (已在录制中，若要开始一个新的录制，请先使用 stop() 停止旧的录制)');
+                return;
+            }
+            cache.recallCode = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, function() {return '0123456789abcdef'.charAt(Math.floor(Math.random() * 16))});
+            if (data && data.constructor == Object && data.goodsCode) {
+                if(data.busCode == undefined) data.busCode='';
+                this.report(data);
+            } else {
+                _cache(true);
+            }
+            setTimeout(_start, 1);
+            trace('start ... ok');
+        }
+
+        this.stop = function(callback){
+            trace('stop ...');
+            _stop(callback, 'stop');
+        };
+
+        this.leaveReport = function(callback) {
+            if(status.leaveType || status.startType) {
+                console.log('leave 执行中,此次调用为无效...');
+                return;
+            }
+            status.leaveType = true;
+            _leaveReport(callback, 'leaveReport');
+        }
+
+        this.restoreReport = function() {
+            trace('restoreReport ...');
+            if (!status.stop) {
+                trace('restoreReport ... error (已在录制中)');
+                return;
+            }
+            if (!cache.recallCode) {
+                var token = _token('decode');
+                if (token) {
+                    cache = token;
+                    _cache(true);
+                } else {
+                    trace('restoreReport ... error (回溯码不存在，无法继续录制)');
+                    return;
+                }
+            }
+            setTimeout(_start, 1);
+            trace('restoreReport ... ok');
+        };
+
+        this.open = function(url) {
+            trace('open ...');
+            var s = url.indexOf('?') < 0 ? '?' : '&';
+            window.location.href = url + s + _token('encode');
+        };
+
+        this.static = function(selector) {
+            if (!selector) return;
+            var images = selector.constructor == Array ? selector : [selector];
+            images.forEach(function(v){
+                var img = document.querySelector(v);
+                if (!img) return;
+                img.onload = function(){
+                    if (this.src.substring(0,10) == 'data:image') return;
+                    var canvas = document.createElement("canvas");
+                    canvas.width = this.width;
+                    canvas.height = this.height;
+                    var ctx = canvas.getContext("2d");
+                    ctx.drawImage(this, 0, 0, this.width, this.height);
+                    var dataURL = canvas.toDataURL("image/png");
+                    this.src = dataURL;
+                }
+                img.onload();
+            })
+        }
+
+        this.debug = function(onoff) {
+            trace('debug ...');
+            status.debug = !!onoff;
+            trace('debug ... ' + (status.debug ? 'on' : 'off'));
+        };
+
+        this.config = function(n, v) {
+            if (!config.hasOwnProperty(n)) return;
+            if (v == undefined) return config[n];
+            config[n] = v;
+        }
+
+        this.version = function() {
+            var v = '1.2.3';
+            trace('version ' + v);
+            return v;
+        }
+
+        trace('instantiate ...');
+        if (options) {
+            for (var k in config) {
+                if(options[k] !== undefined) config[k] = options[k];
+            }
+        }
+        if (!window.MutationObserver) {
+            if (config.notSupportEvent) {
+                config.notSupportEvent();
+            } else {
+                alert(config.notSupportInfo);
+                window.history.back();
+            }
+            trace('instantiate ... error');
+            return;
+        }
+        window.__rrwebsdk_config = config;
+        cache = _cache();
+        _shieldvconsole();
+        trace('instantiate ... ok');
+
+    };
+}));
+
+//export default rrwebSDK;
